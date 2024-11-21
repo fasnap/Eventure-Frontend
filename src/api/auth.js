@@ -1,10 +1,10 @@
 import axios from "axios";
 import { loginSuccess, logout } from "../features/authSlice";
+import { USER_BASE_URL } from "./base";
 
-const API_URL = "http://127.0.0.1:8000/api/user/";
 export const registerUser = async (data) => {
   try {
-    const response = await axios.post(`${API_URL}register/`, data);
+    const response = await axios.post(`${USER_BASE_URL}register/`, data);
     return response.data;
   } catch (error) {
     throw error;
@@ -13,7 +13,7 @@ export const registerUser = async (data) => {
 
 export const verifyOtp = async (data) => {
   try {
-    const response = await axios.post(`${API_URL}verify-otp/`, data);
+    const response = await axios.post(`${USER_BASE_URL}verify-otp/`, data);
     return response.data;
   } catch (error) {
     throw error;
@@ -22,7 +22,7 @@ export const verifyOtp = async (data) => {
 
 export const loginUser = async (data) => {
   try {
-    const response = await axios.post(`${API_URL}login/`, data);
+    const response = await axios.post(`${USER_BASE_URL}login/`, data);
     console.log("Login response:", response.data); // Add this line
 
     return response.data;
@@ -35,7 +35,7 @@ export const loginUser = async (data) => {
 export const getProfile = async () => {
   const accessToken = localStorage.getItem("accessToken");
   try {
-    const response = await axios.get(`${API_URL}attendee/profile/`, {
+    const response = await axios.get(`${USER_BASE_URL}attendee/profile/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -53,7 +53,7 @@ export const updateProfile = async (profileData) => {
   const accessToken = localStorage.getItem("accessToken");
   try {
     const response = await axios.put(
-      `${API_URL}attendee/profile/`,
+      `${USER_BASE_URL}attendee/profile/`,
       profileData,
       {
         headers: {
@@ -72,7 +72,7 @@ export const getCreatorProfile = async () => {
   const accessToken = localStorage.getItem("accessToken");
   console.log("Access Token:", accessToken);
   try {
-    const response = await axios.get(`${API_URL}creator/profile/`, {
+    const response = await axios.get(`${USER_BASE_URL}creator/profile/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -91,7 +91,7 @@ export const getCreatorProfile = async () => {
 export const setupCreatorAccount = async (data) => {
   const accessToken = localStorage.getItem("accessToken");
   try {
-    const response = await axios.put(`${API_URL}creator/profile/`, data, {
+    const response = await axios.put(`${USER_BASE_URL}creator/profile/`, data, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "multipart/form-data",
@@ -113,7 +113,7 @@ export const logoutUser = () => async (dispatch) => {
       throw new Error("No access or refresh token found");
     }
     await axios.post(
-      `${API_URL}logout/`,
+      `${USER_BASE_URL}logout/`,
       { refresh_token: refreshToken },
       {
         headers: {
@@ -133,7 +133,7 @@ export const logoutUser = () => async (dispatch) => {
 
 export const forgotPassword = async (email) => {
   try {
-    const response = await axios.post(`${API_URL}forgot-password/`, { email });
+    const response = await axios.post(`${USER_BASE_URL}forgot-password/`, { email });
     return response.data; 
   } catch (error) {
     throw error;
@@ -142,7 +142,7 @@ export const forgotPassword = async (email) => {
 
 export const resetPassword = async (data) => {
   try {
-    const response = await axios.post(`${API_URL}reset-password/`, data);
+    const response = await axios.post(`${USER_BASE_URL}reset-password/`, data);
     return response.data;
   } catch (error) {
     throw error;
@@ -151,7 +151,7 @@ export const resetPassword = async (data) => {
 
 export const verifyOtpForgotPassword = async (email, otp) => {
   try {
-    const response = await axios.post(`${API_URL}verify-otp-forgot-password/`, {
+    const response = await axios.post(`${USER_BASE_URL}verify-otp-forgot-password/`, {
       email,
       otp,
     });
@@ -161,35 +161,4 @@ export const verifyOtpForgotPassword = async (email, otp) => {
   }
 };
 
-export const googleLogin = (code) => async (dispatch) => {
-  if (!localStorage.getItem("accessToken")) {
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-    const body = JSON.stringify({ code });
-    try {
-      const res = await axios.post(
-        `${API_URL}dj-rest-auth/google/`,
-        body,
-        config
-      );
-      console.log("Login response:", res.data); 
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      dispatch(
-        loginSuccess({
-          user: res.data.user,
-          accessToken: res.data.accessToken,
-          refreshToken: res.data.refreshToken,
-        })
-      );
-      return res.data;
-    } catch (error) {
-      console.error("Login error:", error);
-      throw error;
-    }
-  }
-};
+

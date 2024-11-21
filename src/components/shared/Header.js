@@ -106,14 +106,14 @@ function Header() {
           {isAuthenticated &&
             (user?.user_type === "creator" ? (
               <Link
-                to="/creator/register"
+                to="/creator/event/type"
                 className="text-blue-500 hover:text-blue-700 font-medium"
               >
                 Create Event
               </Link>
             ) : user?.user_type === "attendee" ? (
               <Link
-                to="/events"
+                to="/attendee/home/events"
                 className="text-blue-500 hover:text-blue-700 font-medium"
               >
                 Browse Events

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { googleLogin, loginUser } from "../../api/auth";
+import { loginUser } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { loginSuccess } from "../../features/authSlice";
 
@@ -20,7 +20,6 @@ function UserLogin() {
     console.log(isAuthenticated);
     if (isAuthenticated) {
       const userType = localStorage.getItem("userType");
-      console.log("User type: " + userType);
       if (userType === "attendee") {
         navigate("/attendee/profile");
       } else if (userType === "creator") {
@@ -28,14 +27,7 @@ function UserLogin() {
       }
     }
   }, [isAuthenticated, navigate]);
-  const reachGoogle = () => {
-    const clientID =
-      "197116610660-ips5i8al3h07kitmdmmn1i4vdvv9at9b.apps.googleusercontent.com";
-    const callBackURI = "http://localhost:3000/";
-    window.location.replace(
-      `https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=${callBackURI}&prompt=consent&response_type=code&client_id=${clientID}&scope=openid%20email%20profile&access_type=offline`
-    );
-  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -66,7 +58,7 @@ function UserLogin() {
                 email: result.email,
                 username: result.username,
                 user_type: result.user_type,
-              }, 
+              },
               accessToken: result.accessToken,
               refreshToken: result.refreshToken,
             })
@@ -81,7 +73,7 @@ function UserLogin() {
           setBackendError("An error occurred. Please try again.");
         }
       } catch (error) {
-        console.log(error); 
+        console.log(error);
         if (error.response && error.response.data) {
           // Check if the backend is returning a specific error message
           setBackendError(
@@ -90,7 +82,6 @@ function UserLogin() {
               "An error occurred. Please try again."
           );
         } else {
-          
           setBackendError("An error occurred. Please try again.");
         }
       } finally {
@@ -98,20 +89,7 @@ function UserLogin() {
       }
     }
   };
-  const handleGoogleLogin = async (code) => {
-    try {
-      const googleUser = await dispatch(googleLogin(code));
-      if (googleUser) {
-        if (googleUser.user_type === "attendee") {
-          navigate("/attendee/profile");
-        } else if (googleUser.user_type === "creator") {
-          navigate("/creator/profile");
-        }
-      }
-    } catch (error) {
-      setBackendError("Google login failed. Please try again.");
-    }
-  };
+
   return (
     <div className="h-[100vh] items-center flex justify-center px-5 lg:px-0">
       <div className="max-w-screen-xl bg-white border shadow sm:rounded-lg flex justify-center flex-1">
@@ -129,12 +107,6 @@ function UserLogin() {
               <h1 className="text-2xl xl:text-4xl font-extrabold text-blue-900">
                 Login Page
               </h1>
-              <button
-                onClick={reachGoogle}
-                className="bg-blue-600 text-white py-3 px-6 rounded-lg mt-4"
-              >
-                Sign in with Google
-              </button>
             </div>
             <div className="w-full flex-1 mt-8">
               <div className="mx-auto max-w-xs flex flex-col gap-4">

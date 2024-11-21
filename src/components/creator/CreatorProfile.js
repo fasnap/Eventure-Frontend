@@ -7,6 +7,7 @@ function CreatorProfile() {
   const [creatorProfile, setCreatorProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  
   useEffect(() => {
     const fetchCreatorProfile = async () => {
       try {

@@ -15,7 +15,11 @@ import ApprovedCreators from "./components/admin/ApprovedCreators";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import CreatorAccountSetupRequestList from "./components/admin/CreatorAccountSetupRequestList";
 import UsersList from "./components/admin/UsersList";
-import GoogleCallback from "./features/GoogleCallback";
+import AllEvents from "./components/attendee/AllEvents";
+import EventType from "./components/creator/EventType";
+import CreateOfflineEvent from "./components/creator/CreateOfflineEvent";
+import AdminEventList from "./components/admin/AdminEventList";
+import CreatorEvents from "./components/creator/CreatorEvents";
 
 function App() {
   return (
@@ -23,26 +27,27 @@ function App() {
       <div className="App">
         <Router>
           <Routes>
-            <Route path="/attendee/register" element={<AttendeeRegister />} />
-            <Route path="/creator/register" element={<CreatorRegister />} />
             <Route path="/user/login" element={<UserLoginPage />} />
             <Route path="/user/forgot-password" element={<ForgotPassword />} />
+            
+            <Route path="/attendee/register" element={<AttendeeRegister />} />
             <Route path="/attendee/profile" element={<AttendeeProfilePage />} />
+            <Route path="/attendee/home/events" element={<AllEvents />} />
+
+            <Route path="/creator/register" element={<CreatorRegister />} />
             <Route path="/creator/profile" element={<CreatorProfile />} />
             <Route path="/creator/profile/setup" element={<AccountSetup />} />
+            <Route path="/creator/event/type" element={<EventType />} />
+            <Route path="/creator/event/offline/create" element={<CreateOfflineEvent />} />
+            <Route path="/creator/events" element={<CreatorEvents />} />
+
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<UsersList />} />
-            <Route
-              path="/admin/creators"
-              element={<CreatorAccountSetupRequestList />}
-            />
-            <Route
-              path="/admin/approved-creators"
-              element={<ApprovedCreators />}
-            />
-            // Add a route for the Google OAuth callback
-            <Route path="/" element={<GoogleCallback />} />
+            <Route path="/admin/creators" element={<CreatorAccountSetupRequestList />} />
+            <Route path="/admin/approved-creators" element={<ApprovedCreators />} />
+            <Route path="/admin/events" element={<AdminEventList />} />
+           
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Router>

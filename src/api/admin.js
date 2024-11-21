@@ -1,15 +1,12 @@
 import axios from "axios";
-
-const API_URL = "http://127.0.0.1:8000/api/admin_panel/";
+import { ADMIN_BASE_URL } from "./base";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const loginAdminUser = async (data) => {
   try {
-    const response = await axios.post(`${API_URL}login/`, data);
-    console.log("Login response:", response.data); // Add this line
-
+    const response = await axios.post(`${ADMIN_BASE_URL}login/`, data);
     return response.data;
   } catch (error) {
-    console.error("Login error:", error);
     throw error;
   }
 };
@@ -24,7 +21,7 @@ export const getAllUsers = async (
   currentPage
 ) => {
   try {
-    const response = await axios.get(`${API_URL}users/list/`, {
+    const response = await axios.get(`${ADMIN_BASE_URL}users/list/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -46,7 +43,7 @@ export const getAllUsers = async (
 export const blockUnblockUser = async (userId, accessToken) => {
   try {
     const response = await axios.patch(
-      `${API_URL}users/block_unblock/${userId}/`,
+      `${ADMIN_BASE_URL}users/block_unblock/${userId}/`,
       {},
       {
         headers: {
@@ -64,7 +61,7 @@ export const blockUnblockUser = async (userId, accessToken) => {
 
 export const getAllCreators = async (accessToken) => {
   try {
-    const response = await axios.get(`${API_URL}creators/list/`, {
+    const response = await axios.get(`${ADMIN_BASE_URL}creators/list/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -79,7 +76,7 @@ export const getAllCreators = async (accessToken) => {
 export const approveCreator = async (id, accessToken) => {
   try {
     const response = await axios.post(
-      `${API_URL}creators/approve/${id}/`,
+      `${ADMIN_BASE_URL}creators/approve/${id}/`,
       {},
       {
         headers: {
@@ -97,7 +94,7 @@ export const approveCreator = async (id, accessToken) => {
 export const rejectCreator = async (id, accessToken) => {
   try {
     const response = await axios.post(
-      `${API_URL}creators/reject/${id}/`,
+      `${ADMIN_BASE_URL}creators/reject/${id}/`,
       {},
       {
         headers: {
@@ -114,7 +111,7 @@ export const rejectCreator = async (id, accessToken) => {
 
 export const getAllApprovedCreators = async (accessToken) => {
   try {
-    const response = await axios.get(`${API_URL}approved-creators/`, {
+    const response = await axios.get(`${ADMIN_BASE_URL}approved-creators/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -125,3 +122,60 @@ export const getAllApprovedCreators = async (accessToken) => {
     throw error;
   }
 };
+
+export const fetchEvents = createAsyncThunk(
+  "events/fetchEvents",
+  async ({ accessToken }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${ADMIN_BASE_URL}event/list/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const approveEvent = createAsyncThunk(
+  "events/approveEvent",
+  async ({ eventId, accessToken }, { rejectWithValue }) => {
+    try {
+      console.log("event id at api call: ", eventId);
+      const response = await axios.post(
+        `${ADMIN_BASE_URL}event/approve/${eventId}/`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const rejectEvent = createAsyncThunk(
+  "events/rejectEvent",
+  async ({ eventId, accessToken }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${ADMIN_BASE_URL}event/reject/${eventId}/`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);

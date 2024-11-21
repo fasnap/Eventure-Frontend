@@ -20,6 +20,9 @@ const AdminSidebar = () => {
           <li className="mb-4">
             <Link to="/admin/approved-creators">Approved Creators</Link>
           </li>
+          <li className="mb-4">
+            <Link to="/admin/events">Events</Link>
+          </li>
           {/* Add more admin links as needed */}
         </ul>
       </nav>
