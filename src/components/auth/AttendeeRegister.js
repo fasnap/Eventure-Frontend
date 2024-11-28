@@ -217,6 +217,9 @@ function AttendeeRegister() {
                   {/* </a> */}
                 </p>
               </div>
+              <div className="googleContainer">
+                <button>Sign up with Google</button>
+              </div>
             </div>
             {showModal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">

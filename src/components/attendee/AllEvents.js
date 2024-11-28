@@ -149,7 +149,7 @@ function AllEvents() {
                     >
                       <div className="w-full aspect-square">
                         <img
-                          src={`${BASE_URL}${event.image}`}
+                          src={`${event.image}`}
                           alt={event.title}
                           className="w-full h-full object-cover rounded-t-xl"
                         />
