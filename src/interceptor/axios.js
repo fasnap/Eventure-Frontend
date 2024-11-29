@@ -7,12 +7,14 @@ axios.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      const user=JSON.parse(localStorage.getItem("user"));
-      if (user && user.user_type){
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user && user.user_type) {
         if (user.user_type === "admin") {
-          window.location.href = "/admin/login"; 
-        } else if (user.user_type === "creator" || user.user_type === "attendee"){
-          window.location.href = "/user/login"; // Redirect to login page
+          window.location.href = "/admin/login";
+        } else if (user.user_type === "creator") {
+          window.location.href = "/creator/login";
+        } else if (user.user_type === "attendee") {
+          window.location.href = "/attendee/login";
         }
       }
       localStorage.removeItem("user");

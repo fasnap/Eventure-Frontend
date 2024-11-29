@@ -103,7 +103,7 @@ function CreatorRegister() {
       await verifyOtp({ email: formData.email, otp: otp });
       setFeedbackMessage("OTP verified successfully!");
       setTimeout(() => {
-        navigate("/user/login");
+        navigate("/creator/login");
       }, 2000);
     } catch (error) {
       console.error("OTP verification error: ", error);
@@ -202,7 +202,7 @@ function CreatorRegister() {
                   Already have an account? {/* <a href=""> */}
                   <span
                     className="text-blue-900 font-semibold cursor-pointer"
-                    onClick={() => navigate("/user/login")}
+                    onClick={() => navigate("/creator/login")}
                   >
                     Sign in
                   </span>

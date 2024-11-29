@@ -20,6 +20,7 @@ import EventType from "./components/creator/EventType";
 import CreateOfflineEvent from "./components/creator/CreateOfflineEvent";
 import AdminEventList from "./components/admin/AdminEventList";
 import CreatorEvents from "./components/creator/CreatorEvents";
+import AttendeeLogin from "./components/auth/AttendeeLogin";
 
 function App() {
   return (
@@ -30,10 +31,12 @@ function App() {
             <Route path="/user/login" element={<UserLoginPage />} />
             <Route path="/user/forgot-password" element={<ForgotPassword />} />
             
+            <Route path="/attendee/login" element={<AttendeeLogin />} />
             <Route path="/attendee/register" element={<AttendeeRegister />} />
             <Route path="/attendee/profile" element={<AttendeeProfilePage />} />
             <Route path="/attendee/home/events" element={<AllEvents />} />
 
+            <Route path="/creator/login" element={<AttendeeLogin />} />
             <Route path="/creator/register" element={<CreatorRegister />} />
             <Route path="/creator/profile" element={<CreatorProfile />} />
             <Route path="/creator/profile/setup" element={<AccountSetup />} />

@@ -19,7 +19,12 @@ function Header() {
 
   const handleLogout = () => {
     dispatch(logoutUser());
-    navigate("/user/login");
+    const userType = user.user_type;
+    if (userType === "attendee") {
+      navigate("/attendee/login");
+    } else if (userType === "creator") {
+      navigate("/creator/login");
+    }
   };
 
   const toggleMenu = () => {

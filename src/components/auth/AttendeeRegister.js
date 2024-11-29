@@ -107,7 +107,7 @@ function AttendeeRegister() {
       await verifyOtp({ email: formData.email, otp: otp });
       setFeedbackMessage("OTP verified successfully!");
       setTimeout(() => {
-        navigate("/user/login");
+        navigate("/attendee/login");
       }, 1000);
     } catch (error) {
       console.error("OTP verification error: ", error);
@@ -210,7 +210,7 @@ function AttendeeRegister() {
                   Already have an account? {/* <a href=""> */}
                   <span
                     className="text-blue-900 font-semibold cursor-pointer"
-                    onClick={() => navigate("/user/login")}
+                    onClick={() => navigate("/attendee/login")}
                   >
                     Sign in
                   </span>

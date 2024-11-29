@@ -22,7 +22,7 @@ function AttendeeProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) {
-        navigate("/user/login");
+        navigate("/attendee/login");
         return;
       }
       try {
@@ -30,7 +30,7 @@ function AttendeeProfile() {
         setProfile(data);
       } catch (error) {
         if (error.response?.status === 401) {
-          navigate("/user/login");
+          navigate("/attendee/login");
         }
       }
     };

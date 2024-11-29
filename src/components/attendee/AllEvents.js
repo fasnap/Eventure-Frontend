@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchEventCategories, fetchEvents } from "../../api/event";
-import { BASE_URL } from "../../config/config";
 import Layout from "../shared/user/Layout";
 
 function AllEvents() {
@@ -20,7 +19,7 @@ function AllEvents() {
 
   useEffect(() => {
     if (!user || user.user_type !== "attendee") {
-      navigate("/user/login");
+      navigate("/attendee/login");
     } else {
       dispatch(
         fetchEvents({

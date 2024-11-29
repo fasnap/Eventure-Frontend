@@ -54,7 +54,7 @@ function ForgotPassword() {
       });
       setMessage(response.message);
       setStep(1); // Reset to Step 1 after successful password reset
-      navigate("/user/login");
+      navigate("/attendee/login");
     } catch (error) {
       setMessage("Error resetting password: " + error.response.data.error);
     }
