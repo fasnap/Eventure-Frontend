@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchEventCategories, fetchEvents } from "../../api/event";
 import Layout from "../shared/user/Layout";
+import Spinner from "../shared/Spinner";
+import { MAP_BASE_URL } from "../../api/base";
 
 function AllEvents() {
   const dispatch = useDispatch();
@@ -19,19 +21,21 @@ function AllEvents() {
 
   useEffect(() => {
     if (!user || user.user_type !== "attendee") {
+      console.log("Redirecting to attendee login");
       navigate("/attendee/login");
-    } else {
-      dispatch(
-        fetchEvents({
-          accessToken,
-          minPrice,
-          maxPrice,
-          startDate,
-          endDate,
-          sortBy,
-        })
-      );
+
+      return;
     }
+    dispatch(
+      fetchEvents({
+        accessToken,
+        minPrice,
+        maxPrice,
+        startDate,
+        endDate,
+        sortBy,
+      })
+    );
   }, [
     dispatch,
     navigate,
@@ -44,6 +48,18 @@ function AllEvents() {
     sortBy,
   ]);
 
+  const handleEventClick = (eventId) => {
+    console.log("Event ID:", eventId);
+    navigate(`/attendee/events/${eventId}`);
+  };
+
+  if (!events) {
+    return (
+      <Layout>
+        <Spinner />
+      </Layout>
+    );
+  }
   return (
     <Layout>
       <div className="py-16 min-h-screen">
@@ -58,32 +74,46 @@ function AllEvents() {
               <div className="border-t">
                 <div className="font-semibold mt-8 mb-4 uppercase">Sort By</div>
                 <div
-                  className="cursor-pointer mb-2 text-sm text-indigo-500 hover:text-indigo-500"
+                  className={`cursor-pointer mb-2 text-sm ${
+                    sortBy === "newest" ? "text-indigo-500" : "text-gray-500"
+                  } hover:text-indigo-500`}
                   onClick={() => setSortBy("newest")}
                 >
                   Newest
                 </div>
                 <div
+                  className={`cursor-pointer mb-2 text-sm ${
+                    sortBy === "a-z" ? "text-indigo-500" : "text-gray-500"
+                  } hover:text-indigo-500`}
                   onClick={() => setSortBy("a-z")}
-                  className="cursor-pointer mb-2 text-sm text-gray-500 hover:text-indigo-500"
                 >
                   A-Z
                 </div>
                 <div
+                  className={`cursor-pointer mb-2 text-sm ${
+                    sortBy === "z-a" ? "text-indigo-500" : "text-gray-500"
+                  } hover:text-indigo-500`}
                   onClick={() => setSortBy("z-a")}
-                  className="cursor-pointer mb-2 text-sm text-gray-500 hover:text-indigo-500"
                 >
                   Z-A
                 </div>
                 <div
+                  className={`cursor-pointer mb-2 text-sm ${
+                    sortBy === "price_high-to-low"
+                      ? "text-indigo-500"
+                      : "text-gray-500"
+                  } hover:text-indigo-500`}
                   onClick={() => setSortBy("price_high-to-low")}
-                  className="cursor-pointer mb-2 text-sm text-gray-500 hover:text-indigo-500"
                 >
                   Price: High to Low
                 </div>
                 <div
+                  className={`cursor-pointer mb-2 text-sm ${
+                    sortBy === "price_low_to_high"
+                      ? "text-indigo-500"
+                      : "text-gray-500"
+                  } hover:text-indigo-500`}
                   onClick={() => setSortBy("price_low_to_high")}
-                  className="cursor-pointer mb-2 text-sm text-gray-500 hover:text-indigo-500"
                 >
                   Price: Low to High
                 </div>
@@ -156,7 +186,10 @@ function AllEvents() {
                       <div className="p-6 flex flex-col">
                         {/* Title and Online/Offline */}
                         <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-semibold text-xl text-gray-800">
+                          <h3
+                            className="font-semibold text-xl text-gray-800"
+                            onClick={() => handleEventClick(event.id)}
+                          >
                             {event.title}
                           </h3>
                           <span
@@ -180,6 +213,17 @@ function AllEvents() {
                           <p>
                             {event.date} | {event.venue}
                           </p>
+                          {/* Google Maps link */}
+                          {event.latitude && event.longitude && (
+                            <a
+                              href={`${MAP_BASE_URL}${event.latitude},${event.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:text-blue-700 text-sm"
+                            >
+                              View on Google Maps
+                            </a>
+                          )}
                         </div>
                         <p className="font-medium text-green-600 text-md mb-2 mt-3">
                           ₹ {event.price}
@@ -189,9 +233,7 @@ function AllEvents() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-700 text-center mt-8">
-                  No events available
-                </p>
+                <Spinner />
               )}
             </div>
           </div>

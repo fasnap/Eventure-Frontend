@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile } from "../../api/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Spinner from "../shared/Spinner";
 
 function AttendeeProfile() {
   const [profile, setProfile] = useState({
@@ -18,6 +19,7 @@ function AttendeeProfile() {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const [isEditable, setIsEditable] = useState(false); // New state for edit mode
+  const [isLoading, setIsLoading] = useState(false); // State for spinner
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -25,6 +27,8 @@ function AttendeeProfile() {
         navigate("/attendee/login");
         return;
       }
+      setIsLoading(true); // Show spinner
+
       try {
         const data = await getProfile();
         setProfile(data);
@@ -32,6 +36,8 @@ function AttendeeProfile() {
         if (error.response?.status === 401) {
           navigate("/attendee/login");
         }
+      } finally {
+        setIsLoading(false); // Hide spinner
       }
     };
 
@@ -40,7 +46,7 @@ function AttendeeProfile() {
 
   const handleEditClick = () => {
     setBackupProfile(profile);
-    setIsEditable(true); 
+    setIsEditable(true);
   };
   const handleSaveClick = async () => {
     try {
@@ -67,6 +73,10 @@ function AttendeeProfile() {
       [name]: value,
     }));
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <div className="mt-3 max-w-3xl mx-auto p-6 bg-gray-50 shadow-lg rounded-lg">

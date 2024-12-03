@@ -21,7 +21,14 @@ function AttendeeLogin() {
   useEffect(() => {
     console.log(isAuthenticated);
     if (isAuthenticated) {
-      navigate("/attendee/profile");
+      const userType = localStorage.getItem("userType");
+      if (userType === "creator") {
+        navigate("/creator/profile");
+      } else if (userType === "attendee") {
+        navigate("/attendee/profile");
+      } else {
+        console.error("Unknown userType");
+      }
     }
   }, [isAuthenticated, navigate]);
 
@@ -41,13 +48,14 @@ function AttendeeLogin() {
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
       setLoading(true);
       try {
         const result = await loginUser(formData);
-        if (result.user_type) {
+        if (result.user_type === "attendee") {
           localStorage.setItem("userType", result.user_type);
           dispatch(
             loginSuccess({
@@ -63,7 +71,7 @@ function AttendeeLogin() {
           navigate("/attendee/profile");
         } else {
           // If user_type is not present in the response show an error
-          setBackendError("An error occurred. Please try again.");
+          setBackendError("Invalid details provided");
         }
       } catch (error) {
         console.log(error);
@@ -136,7 +144,7 @@ function AttendeeLogin() {
         <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
           <div className=" flex flex-col items-center">
             <div className="text-center">
-              <h1 className="text-2xl xl:text-4xl font-extrabold text-blue-900">
+              <h1 className="text-2xl xl:text-4xl font-extrabold text-blue-900 pb-4">
                 Attendee Login Page
               </h1>
             </div>
@@ -144,6 +152,8 @@ function AttendeeLogin() {
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleFailure}
             />
+            <p className="pt-4">or</p>
+
             <div className="w-full flex-1 mt-8">
               <div className="mx-auto max-w-xs flex flex-col gap-4">
                 <input
@@ -203,7 +213,12 @@ function AttendeeLogin() {
                 </button>
                 <p className="mt-6 text-xs text-gray-600 text-center">
                   No account? {/* <a href=""> */}
-                  <span className="text-blue-900 font-semibold">Sign Up</span>
+                  <span
+                    onClick={() => navigate("/attendee/register")}
+                    className="text-blue-900 font-semibold cursor-pointer"
+                  >
+                    Sign Up
+                  </span>
                   {/* </a> */}
                 </p>
               </div>

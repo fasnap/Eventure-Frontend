@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { registerUser, verifyOtp } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import axios from "axios";
+import { loginSuccess } from "../../features/authSlice";
+import { GoogleLogin } from "@react-oauth/google";
 
 function CreatorRegister() {
   const [formData, setFormData] = useState({
@@ -17,6 +21,7 @@ function CreatorRegister() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -111,6 +116,45 @@ function CreatorRegister() {
     }
   };
 
+  const handleGoogleSuccess = async (response) => {
+    const { credential } = response;
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:8000/api/user/google-auth/",
+        {
+          token: credential,
+          user_type: "attendee",
+        }
+      );
+      const data = res.data;
+      if (data.access) {
+        localStorage.setItem("accessToken", data.access);
+        localStorage.setItem("refreshToken", data.refresh);
+        dispatch(
+          loginSuccess({
+            user: {
+              email: data.email,
+              username: data.username,
+              user_type: "attendee",
+            },
+            accessToken: data.access,
+            refreshToken: data.refresh,
+          })
+        );
+
+        navigate("/attendee/profile");
+      } else {
+        console.error("Google authentication failed.");
+      }
+    } catch (error) {
+      console.error("An error occurred during Google authentication:", error);
+    }
+  };
+
+  const handleGoogleFailure = (error) => {
+    console.error("Google Login Failed", error);
+  };
+
   return (
     <div className="h-[100vh] items-center flex justify-center px-5 lg:px-0">
       <div className="max-w-screen-xl bg-white border shadow sm:rounded-lg flex justify-center flex-1">
@@ -128,10 +172,15 @@ function CreatorRegister() {
               <h1 className="text-2xl xl:text-4xl font-extrabold text-blue-900">
                 Your Event Solution
               </h1>
-              <p className="text-[12px] text-gray-500">
+              <p className="text-[12px] text-gray-500 pb-4">
                 Hey enter your details to create your account
               </p>
             </div>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleFailure}
+            />
+            <p className="pt-4">or</p>
             <div className="w-full flex-1 mt-8">
               <div className="mx-auto max-w-xs flex flex-col gap-4">
                 <input

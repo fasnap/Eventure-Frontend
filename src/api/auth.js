@@ -49,6 +49,7 @@ export const getProfile = async () => {
     throw error;
   }
 };
+
 export const updateProfile = async (profileData) => {
   const accessToken = localStorage.getItem("accessToken");
   try {
@@ -112,19 +113,21 @@ export const logoutUser = () => async (dispatch) => {
     if (!accessToken || !refreshToken) {
       throw new Error("No access or refresh token found");
     }
-    await axios.post(
+    console.log("Refresh token sent:", refreshToken);
+
+    const response = await axios.post(
       `${USER_BASE_URL}logout/`,
-      { refresh_token: refreshToken },
+      { refresh_token: refreshToken }, // Send refresh_token in the request body
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`, 
         },
       }
     );
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
-    localStorage.removeItem("userType")
+    localStorage.removeItem("userType");
     dispatch(logout());
   } catch (error) {
     console.error("Error logging out:", error);
@@ -133,8 +136,10 @@ export const logoutUser = () => async (dispatch) => {
 
 export const forgotPassword = async (email) => {
   try {
-    const response = await axios.post(`${USER_BASE_URL}forgot-password/`, { email });
-    return response.data; 
+    const response = await axios.post(`${USER_BASE_URL}forgot-password/`, {
+      email,
+    });
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -151,14 +156,15 @@ export const resetPassword = async (data) => {
 
 export const verifyOtpForgotPassword = async (email, otp) => {
   try {
-    const response = await axios.post(`${USER_BASE_URL}verify-otp-forgot-password/`, {
-      email,
-      otp,
-    });
+    const response = await axios.post(
+      `${USER_BASE_URL}verify-otp-forgot-password/`,
+      {
+        email,
+        otp,
+      }
+    );
     return response.data;
   } catch (error) {
     throw error;
   }
 };
-
-

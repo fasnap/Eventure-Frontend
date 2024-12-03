@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { registerUser, verifyOtp } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
-
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { loginSuccess } from "../../features/authSlice";
+import { useDispatch } from "react-redux";
 function AttendeeRegister() {
   const [formData, setFormData] = useState({
     email: "",
@@ -16,8 +19,8 @@ function AttendeeRegister() {
   const [loading, setLoading] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [errors, setErrors] = useState({});
-  const [resendCooldown, setResendCooldown] = useState(0); 
-
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -115,6 +118,45 @@ function AttendeeRegister() {
     }
   };
 
+  const handleGoogleSuccess = async (response) => {
+    const { credential } = response;
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:8000/api/user/google-auth/",
+        {
+          token: credential,
+          user_type: "attendee",
+        }
+      );
+      const data = res.data;
+      if (data.access) {
+        localStorage.setItem("accessToken", data.access);
+        localStorage.setItem("refreshToken", data.refresh);
+        dispatch(
+          loginSuccess({
+            user: {
+              email: data.email,
+              username: data.username,
+              user_type: "attendee",
+            },
+            accessToken: data.access,
+            refreshToken: data.refresh,
+          })
+        );
+
+        navigate("/attendee/profile");
+      } else {
+        console.error("Google authentication failed.");
+      }
+    } catch (error) {
+      console.error("An error occurred during Google authentication:", error);
+    }
+  };
+
+  const handleGoogleFailure = (error) => {
+    console.error("Google Login Failed", error);
+  };
+
   return (
     <div className="h-[100vh] items-center flex justify-center px-5 lg:px-0">
       <div className="max-w-screen-xl bg-white border shadow sm:rounded-lg flex justify-center flex-1">
@@ -130,12 +172,17 @@ function AttendeeRegister() {
           <div className=" flex flex-col items-center">
             <div className="text-center">
               <h1 className="text-2xl xl:text-4xl font-extrabold text-blue-900">
-                Browse Events
+                Sign up for Attending Events
               </h1>
-              <p className="text-[12px] text-gray-500">
+              <p className="text-[12px] text-gray-500 pb-4 pt-1">
                 Hey enter your details to create your account
               </p>
             </div>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleFailure}
+            />
+            <p className="pt-4">or</p>
             <div className="w-full flex-1 mt-8">
               <div className="mx-auto max-w-xs flex flex-col gap-4">
                 <input
@@ -216,9 +263,6 @@ function AttendeeRegister() {
                   </span>
                   {/* </a> */}
                 </p>
-              </div>
-              <div className="googleContainer">
-                <button>Sign up with Google</button>
               </div>
             </div>
             {showModal && (

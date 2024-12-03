@@ -21,11 +21,9 @@ export const fetchEvents = createAsyncThunk(
             start_date: startDate || null,
             end_date: endDate || null,
             sort_by: sortBy || "created_at",
-          }
+          },
         }
       );
-      console.log("Fetched Events Data:", response.data); // Log the response data
-
       return response.data;
     } catch (error) {
       console.error("Error fetching events:", error.response.data); // Log the error
@@ -55,6 +53,25 @@ export const createEvent = createAsyncThunk(
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const fetchSingleEvent = createAsyncThunk(
+  "events/fetchSingleEvent",
+  async ({ accessToken, eventId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${EVENT_BASE_URL}${eventId}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );

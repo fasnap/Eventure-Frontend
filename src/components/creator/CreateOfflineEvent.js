@@ -4,6 +4,66 @@ import { useDispatch, useSelector } from "react-redux";
 import { createEvent, fetchEventCategories } from "../../api/event";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useLoadScript } from "@react-google-maps/api";
+import usePlacesAutocomplete, {
+  getGeocode,
+  getLatLng,
+} from "use-places-autocomplete";
+import DateTimePicker from "react-datetime-picker";
+
+function GoogleMapsAutocomplete({ setEventData }) {
+  const {
+    ready,
+    value,
+    suggestions: { status, data },
+    setValue,
+    clearSuggestions,
+  } = usePlacesAutocomplete();
+
+  const handleSelect = async (address) => {
+    setValue(address, false);
+    clearSuggestions();
+
+    try {
+      const results = await getGeocode({ address });
+      const { lat, lng } = await getLatLng(results[0]);
+
+      setEventData((prevData) => ({
+        ...prevData,
+        location: address,
+        latitude: lat,
+        longitude: lng,
+      }));
+    } catch (error) {
+      console.error("Error fetching coordinates: ", error);
+    }
+  };
+
+  return (
+    <div className="flex flex-col relative">
+      <input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        disabled={!ready}
+        className="px-4 py-2 border focus:ring-gray-500 focus:border-gray-900 w-full sm:text-sm border-gray-300 rounded-md focus:outline-none text-gray-600"
+        placeholder="Search for location..."
+      />
+      {status === "OK" && (
+        <ul className="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-2 max-h-60 overflow-y-auto">
+          {data.map(({ place_id, description }) => (
+            <li
+              key={place_id}
+              onClick={() => handleSelect(description)}
+              className="p-2 cursor-pointer hover:bg-gray-200"
+            >
+              {description}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function CreateOfflineEvent() {
   const [activeSection, setActiveSection] = useState("details");
@@ -18,8 +78,8 @@ function CreateOfflineEvent() {
     title: "",
     category: "",
     date: "",
-    start_time: "",
-    end_time: "",
+    start_time: new Date(),
+    end_time: new Date(),
     description: "",
     venue: "",
     country: "",
@@ -30,6 +90,13 @@ function CreateOfflineEvent() {
     price: 0,
     total_tickets: 1,
     event_type: "offline",
+    location: "",
+    latitude: "", // Add this field to store Google Maps location
+    longitude: null, // To store latitude and longitude
+  });
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyDjzhcTlzmDJLanj-6dg3vE4gV5K7m1cd0", // API key
+    libraries: ["places"],
   });
   const handleProceed = () => {
     setActiveSection("tickets");
@@ -55,7 +122,23 @@ function CreateOfflineEvent() {
     }
     setEventData((prevData) => ({ ...prevData, image: file }));
   };
+  const validateTimes = () => {
+    if (new Date(eventData.start_time) >= new Date(eventData.end_time)) {
+      toast.error("End time must be after start time.");
+      return false;
+    }
+    return true;
+  };
   const handleCreateEvent = () => {
+    if (!validateTimes()) return;
+    const formattedStartTime = new Date(
+      eventData.start_time
+    ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const formattedEndTime = new Date(eventData.end_time).toLocaleTimeString(
+      [],
+      { hour: "2-digit", minute: "2-digit" }
+    );
+
     const requiredFields = [
       "title",
       "category",
@@ -70,6 +153,8 @@ function CreateOfflineEvent() {
       "image",
       "ticket_type",
       "total_tickets",
+      "latitude",
+      "longitude",
     ];
     const missingField = requiredFields.find((field) => {
       const value = eventData[field];
@@ -92,15 +177,26 @@ function CreateOfflineEvent() {
       toast.error("Please select a current event date.");
       return;
     }
-    dispatch(createEvent({ eventData, accessToken }));
+
+    const eventDataWithFormattedTime = {
+      ...eventData,
+      start_time: formattedStartTime,
+      end_time: formattedEndTime,
+    };
+    console.log(eventDataWithFormattedTime);
+
+    dispatch(
+      createEvent({ eventData: eventDataWithFormattedTime, accessToken })
+    );
     toast.success("Event created successfully!");
-    navigate("/creator/events");
   };
 
   useEffect(() => {
     dispatch(fetchEventCategories());
   }, [dispatch]);
-
+  const handleDateTimeChange = (field, value) => {
+    setEventData((prevData) => ({ ...prevData, [field]: value }));
+  };
   return (
     <Layout>
       <ToastContainer />
@@ -148,6 +244,12 @@ function CreateOfflineEvent() {
                   <div className="divide-y divide-gray-200">
                     <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
                       <div className="flex flex-col">
+                        <label className="leading-loose">
+                          Event Location (Google Maps)
+                        </label>
+                        <GoogleMapsAutocomplete setEventData={setEventData} />
+                      </div>
+                      <div className="flex flex-col">
                         <label className="leading-loose">Event Title</label>
                         <input
                           name="title"
@@ -187,23 +289,31 @@ function CreateOfflineEvent() {
                           />
                         </div>
                         <div className="flex flex-col">
-                          <label className="leading-loose">Start Time</label>
-                          <input
-                            name="start_time"
+                          <label className="leading-loose text-gray-700">
+                            Start Time
+                          </label>
+                          <DateTimePicker
+                            onChange={(value) =>
+                              handleDateTimeChange("start_time", value)
+                            }
                             value={eventData.start_time}
-                            onChange={handleChange}
-                            type="time"
-                            className="px-4 py-2 border focus:ring-gray-500 focus:border-gray-900 w-full sm:text-sm border-gray-300 rounded-md focus:outline-none text-gray-600"
+                            format="HH:mm a"
+                            clearIcon={null} // Hide the clear icon
+                            calendarIcon={null} // Hide the calendar icon
+                            className="text-xl text-gray-900 border border-gray-300 rounded p-2 h-16 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
+
                         <div className="flex flex-col">
                           <label className="leading-loose">End Time</label>
-                          <input
-                            name="end_time"
+                          <DateTimePicker
+                            onChange={(value) =>
+                              handleDateTimeChange("end_time", value)
+                            }
                             value={eventData.end_time}
-                            onChange={handleChange}
-                            type="time"
-                            className="px-4 py-2 border focus:ring-gray-500 focus:border-gray-900 w-full sm:text-sm border-gray-300 rounded-md focus:outline-none text-gray-600"
+                            format="HH:mm a"
+                            clearIcon={null} // Hide the clear icon
+                            calendarIcon={null} // Hide the calendar icon
                           />
                         </div>
                       </div>
@@ -274,6 +384,7 @@ function CreateOfflineEvent() {
                         </p>
                       </div>
                     </div>
+
                     <div className="pt-4 flex items-center space-x-4">
                       <button
                         onClick={handleProceed}
@@ -366,6 +477,7 @@ function CreateOfflineEvent() {
                         />
                       </div>
                     </div>
+
                     <div className="pt-4 flex items-center space-x-4">
                       <button
                         onClick={handleCreateEvent}

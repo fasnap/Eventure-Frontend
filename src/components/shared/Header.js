@@ -20,6 +20,7 @@ function Header() {
   const handleLogout = () => {
     dispatch(logoutUser());
     const userType = user.user_type;
+    console.log("user type:", userType);
     if (userType === "attendee") {
       navigate("/attendee/login");
     } else if (userType === "creator") {
@@ -31,17 +32,30 @@ function Header() {
     setMenuOpen(!menuOpen);
   };
 
+  const profileClick = () => {
+    const userType = user.user_type;
+    if (userType === "attendee") {
+      navigate("/attendee/profile");
+    } else if (userType === "creator") {
+      navigate("/creator/profile");
+    }
+  };
+
   return (
     <header className="bg-white shadow-md p-4 flex flex-col md:flex-row items-center justify-between">
       {/* Logo and Title */}
       <div className="flex items-center justify-between w-full md:w-auto">
         <div className="flex items-center space-x-3">
           <img
+            onClick={() => navigate("/")}
             src="https://via.placeholder.com/40"
             alt="Eventure Logo"
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full"
+            className="cursor-pointer w-8 h-8 md:w-10 md:h-10 rounded-full"
           />
-          <h1 className="text-xl md:text-2xl font-bold text-gray-800">
+          <h1
+            onClick={() => navigate("/")}
+            className="text-xl md:text-2xl font-bold text-gray-800 cursor-pointer"
+          >
             Eventure
           </h1>
         </div>
@@ -80,13 +94,17 @@ function Header() {
           {/* User Profile Section */}
           {isAuthenticated && user ? (
             <div className="flex items-center space-x-2">
-              <FaUserCircle className="text-gray-600 text-2xl" />
+              <FaUserCircle
+                className="text-gray-600 text-2xl cursor-pointer"
+                onClick={profileClick}
+                title="Go to Profile"
+              />
               <span className="text-gray-700 font-medium hidden md:block">
                 Hi, {user.username}
               </span>
               <span
                 onClick={handleLogout}
-                className="text-gray-700 font-medium cursor-pointer hidden md:block"
+                className="text-red-700 font-medium cursor-pointer hidden md:block"
               >
                 Logout
               </span>

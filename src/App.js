@@ -21,6 +21,9 @@ import CreateOfflineEvent from "./components/creator/CreateOfflineEvent";
 import AdminEventList from "./components/admin/AdminEventList";
 import CreatorEvents from "./components/creator/CreatorEvents";
 import AttendeeLogin from "./components/auth/AttendeeLogin";
+import CreatorLogin from "./components/auth/CreatorLogin";
+import EventDetail from "./components/attendee/EventDetail";
+import Landing from "./components/attendee/Landing";
 
 function App() {
   return (
@@ -30,27 +33,38 @@ function App() {
           <Routes>
             <Route path="/user/login" element={<UserLoginPage />} />
             <Route path="/user/forgot-password" element={<ForgotPassword />} />
-            
+            <Route path="/" element={<Landing />} />
+
             <Route path="/attendee/login" element={<AttendeeLogin />} />
             <Route path="/attendee/register" element={<AttendeeRegister />} />
             <Route path="/attendee/profile" element={<AttendeeProfilePage />} />
             <Route path="/attendee/home/events" element={<AllEvents />} />
+            <Route path="/attendee/events/:id" element={<EventDetail />} />
 
-            <Route path="/creator/login" element={<AttendeeLogin />} />
+            <Route path="/creator/login" element={<CreatorLogin />} />
             <Route path="/creator/register" element={<CreatorRegister />} />
             <Route path="/creator/profile" element={<CreatorProfile />} />
             <Route path="/creator/profile/setup" element={<AccountSetup />} />
             <Route path="/creator/event/type" element={<EventType />} />
-            <Route path="/creator/event/offline/create" element={<CreateOfflineEvent />} />
+            <Route
+              path="/creator/event/offline/create"
+              element={<CreateOfflineEvent />}
+            />
             <Route path="/creator/events" element={<CreatorEvents />} />
 
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<UsersList />} />
-            <Route path="/admin/creators" element={<CreatorAccountSetupRequestList />} />
-            <Route path="/admin/approved-creators" element={<ApprovedCreators />} />
+            <Route
+              path="/admin/creators"
+              element={<CreatorAccountSetupRequestList />}
+            />
+            <Route
+              path="/admin/approved-creators"
+              element={<ApprovedCreators />}
+            />
             <Route path="/admin/events" element={<AdminEventList />} />
-           
+
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Router>
