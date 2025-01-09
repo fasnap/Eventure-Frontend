@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="relative bg-gray-300 pt-8 pb-6">
       <div
-        className="bottom-auto top-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden -mt-20"
+        className="bottom-auto top-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden"
         style={{ height: "80px" }}
       >
         <svg

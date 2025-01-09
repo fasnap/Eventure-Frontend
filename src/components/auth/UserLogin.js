@@ -5,19 +5,19 @@ import { useNavigate } from "react-router-dom";
 import { loginSuccess } from "../../features/authSlice";
 
 function UserLogin() {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [backendError, setBackendError] = useState("");
 
   useEffect(() => {
-    console.log(isAuthenticated);
     if (isAuthenticated) {
       const userType = localStorage.getItem("userType");
       if (userType === "attendee") {
@@ -73,7 +73,6 @@ function UserLogin() {
           setBackendError("An error occurred. Please try again.");
         }
       } catch (error) {
-        console.log(error);
         if (error.response && error.response.data) {
           // Check if the backend is returning a specific error message
           setBackendError(

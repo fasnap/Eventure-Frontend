@@ -22,12 +22,12 @@ function EventType() {
                 Create an Online Event
               </h5>
               <div className="flex mt-4">
-                <a
-                  href="#"
+                <button
+                  onClick={() => navigate("/creator/event/online/create")}
                   className="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
                 >
                   CREATE
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -45,7 +45,7 @@ function EventType() {
               </h5>
               <div className="flex mt-4">
                 <button
-                  onClick={()=>navigate("/creator/event/offline/create")}
+                  onClick={() => navigate("/creator/event/offline/create")}
                   className="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
                 >
                   CREATE

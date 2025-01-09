@@ -11,14 +11,15 @@ import {
 } from "../../features/creatorsSlice";
 import Layout from "../shared/admin/Layout";
 import Modal from "react-modal";
+import Spinner from "../shared/Spinner";
 
 function CreatorAccountSetupRequestList() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const { creators, loading, error } = useSelector((state) => state.creators);
   const accessToken = useSelector((state) => state.auth.accessToken);
   const userType = useSelector((state) => state.auth.user?.user_type);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentAction, setCurrentAction] = useState("");
@@ -32,8 +33,6 @@ function CreatorAccountSetupRequestList() {
         dispatch(fetchCreatorsStart());
         try {
           const result = await getAllCreators(accessToken);
-
-          console.log(result);
           dispatch(fetchCreatorsSuccess(result));
         } catch (err) {
           dispatch(fetchCreatorsError(err.message));
@@ -79,10 +78,9 @@ function CreatorAccountSetupRequestList() {
             <h1 className="text-lg font-semibold mb-4">
               Creator Account Setup Requests
             </h1>
-            {loading && <p>Loading...</p>}
             {error && <p>Error</p>}
             {creators.length === 0 ? (
-              <p>No Creators Request </p>
+              ""
             ) : (
               <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

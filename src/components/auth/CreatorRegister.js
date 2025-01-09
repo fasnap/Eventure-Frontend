@@ -74,7 +74,6 @@ function CreatorRegister() {
       setLoading(true);
       try {
         const response = await registerUser(formData);
-        console.log(response);
         setIsOtpSent(true);
         setShowModal(true);
       } catch (error) {
@@ -111,7 +110,6 @@ function CreatorRegister() {
         navigate("/creator/login");
       }, 2000);
     } catch (error) {
-      console.error("OTP verification error: ", error);
       setFeedbackMessage("Invalid OTP, please try again.");
     }
   };
@@ -170,7 +168,7 @@ function CreatorRegister() {
           <div className=" flex flex-col items-center">
             <div className="text-center">
               <h1 className="text-2xl xl:text-4xl font-extrabold text-blue-900">
-                Your Event Solution
+                Create your Events Signup
               </h1>
               <p className="text-[12px] text-gray-500 pb-4">
                 Hey enter your details to create your account
@@ -257,6 +255,18 @@ function CreatorRegister() {
                   </span>
                   {/* </a> */}
                 </p>
+
+                <p className="mt-6 text-xs text-gray-600 text-center">
+                  Want to attend event  {/* <a href=""> */}
+                  <span
+                    className="text-blue-900 font-semibold cursor-pointer"
+                    onClick={() => navigate("/attendee/register")}
+                  >
+                    Click here
+                  </span>
+                  {/* </a> */}
+                </p>
+
               </div>
             </div>
             {showModal && (

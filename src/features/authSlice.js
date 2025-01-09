@@ -13,6 +13,7 @@ const authSlice = createSlice({
   reducers: {
     loginSuccess(state, action) {
       const { user, accessToken, refreshToken } = action.payload; // Destructure here
+      console.log("user is authenticated", user)
       state.user = user;
       state.accessToken = accessToken;
       state.refreshToken = refreshToken;
@@ -31,6 +32,7 @@ const authSlice = createSlice({
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+      localStorage.removeItem("userType");
     },
   },
 });

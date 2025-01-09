@@ -35,7 +35,6 @@ export const getAllUsers = async (
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching users:", error);
     throw error;
   }
 };
@@ -51,10 +50,8 @@ export const blockUnblockUser = async (userId, accessToken) => {
         },
       }
     );
-    console.log(response.data);
     return response.data;
   } catch (error) {
-    console.error("Error blocking/unblocking user:", error);
     throw error;
   }
 };
@@ -68,7 +65,6 @@ export const getAllCreators = async (accessToken) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching creators:", error);
     throw error;
   }
 };
@@ -86,7 +82,6 @@ export const approveCreator = async (id, accessToken) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error approving creator:", error);
     throw error;
   }
 };
@@ -104,7 +99,6 @@ export const rejectCreator = async (id, accessToken) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error rejecting creator:", error);
     throw error;
   }
 };
@@ -118,7 +112,6 @@ export const getAllApprovedCreators = async (accessToken) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching creators:", error);
     throw error;
   }
 };
@@ -143,7 +136,6 @@ export const approveEvent = createAsyncThunk(
   "events/approveEvent",
   async ({ eventId, accessToken }, { rejectWithValue }) => {
     try {
-      console.log("event id at api call: ", eventId);
       const response = await axios.post(
         `${ADMIN_BASE_URL}event/approve/${eventId}/`,
         {},
@@ -175,6 +167,25 @@ export const rejectEvent = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const fetchAdminDashboardData = createAsyncThunk(
+  "dashboard/fetchAdminDashboardData",
+  async (_, { rejectWithValue }) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await axios.get(`${ADMIN_BASE_URL}dashboard/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log("resposne in apic all ",response.data);
+      return response.data;
+    } catch (error) {
+      console.log("error in apic all ",error.response);
       return rejectWithValue(error.response.data);
     }
   }

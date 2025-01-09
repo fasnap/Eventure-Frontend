@@ -1,6 +1,8 @@
 import axios from "axios";
 import { loginSuccess, logout } from "../features/authSlice";
 import { USER_BASE_URL } from "./base";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axiosInstance from "../instance/axiosInstance";
 
 export const registerUser = async (data) => {
   try {
@@ -22,24 +24,17 @@ export const verifyOtp = async (data) => {
 
 export const loginUser = async (data) => {
   try {
-    const response = await axios.post(`${USER_BASE_URL}login/`, data);
-    console.log("Login response:", response.data); // Add this line
-
+    const response = await axiosInstance.post("/user/login/", data);
+    console.log("response in api call", response.data);
     return response.data;
   } catch (error) {
-    console.error("Login error:", error);
     throw error;
   }
 };
 
 export const getProfile = async () => {
-  const accessToken = localStorage.getItem("accessToken");
   try {
-    const response = await axios.get(`${USER_BASE_URL}attendee/profile/`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const response = await axiosInstance.get("/user/attendee/profile/", {});
 
     return response.data;
   } catch (error) {
@@ -51,37 +46,29 @@ export const getProfile = async () => {
 };
 
 export const updateProfile = async (profileData) => {
-  const accessToken = localStorage.getItem("accessToken");
   try {
-    const response = await axios.put(
+    const response = await axiosInstance.put(
       `${USER_BASE_URL}attendee/profile/`,
-      profileData,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
+      profileData
     );
     return response.data;
   } catch (error) {
-    console.error("Error updating profile:", error.response?.data || error);
     throw error;
   }
 };
 
 export const getCreatorProfile = async () => {
   const accessToken = localStorage.getItem("accessToken");
-  console.log("Access Token:", accessToken);
+
   try {
     const response = await axios.get(`${USER_BASE_URL}creator/profile/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    console.log("Creator profile response:", response.data);
+
     return response.data;
   } catch (error) {
-    console.error("Error fetching creator profile:", error);
     if (error.response?.status === 401) {
       throw error;
     }
@@ -100,7 +87,6 @@ export const setupCreatorAccount = async (data) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error setting up creator account:", error);
     throw error;
   }
 };
@@ -113,21 +99,16 @@ export const logoutUser = () => async (dispatch) => {
     if (!accessToken || !refreshToken) {
       throw new Error("No access or refresh token found");
     }
-    console.log("Refresh token sent:", refreshToken);
-
-    const response = await axios.post(
+    await axios.post(
       `${USER_BASE_URL}logout/`,
       { refresh_token: refreshToken }, // Send refresh_token in the request body
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`, 
+          Authorization: `Bearer ${accessToken}`,
         },
       }
     );
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
-    localStorage.removeItem("userType");
+    // localStorage.clear();
     dispatch(logout());
   } catch (error) {
     console.error("Error logging out:", error);
@@ -168,3 +149,20 @@ export const verifyOtpForgotPassword = async (email, otp) => {
     throw error;
   }
 };
+
+export const fetchCreatorProfile = createAsyncThunk(
+  "auth/fetchCreatorProfile",
+  async (_, { rejectWithValue }) => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      const response = await axios.get(`${USER_BASE_URL}creator/profile/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);

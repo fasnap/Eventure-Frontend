@@ -1,7 +1,10 @@
 import React from "react";
-import Layout from "../shared/user/Layout";
 import Header from "../shared/Header";
 import Footer from "../shared/user/footer";
+import teamImage1 from "../../assets/img/team-1-800x800.jpg";
+import teamImage2 from "../../assets/img/team-2-800x800.jpg";
+import teamImage3 from "../../assets/img/team-3-800x800.jpg";
+import teamImage4 from "../../assets/img/team-4-470x470.png";
 
 export default function Landing() {
   return (
@@ -35,8 +38,9 @@ export default function Landing() {
                   </h1>
                   <p className="mt-4 text-lg text-gray-300">
                     Eventure connects you to the events you love, whether you're
-                    organizing or attending. 
-                    Discover the easiest wat to create, explore, and participate in events tailored to ypur interests.
+                    organizing or attending. Discover the easiest wat to create,
+                    explore, and participate in events tailored to ypur
+                    interests.
                   </p>
                 </div>
               </div>
@@ -283,10 +287,7 @@ export default function Landing() {
                 <div className="px-6">
                   <img
                     alt="..."
-                    src={
-                      require("/home/hp/Desktop/Eventure/Eventure_frontend/eventure/src/assets/img/team-1-800x800.jpg")
-                        .default
-                    }
+                    src={teamImage1}
                     className="shadow-lg rounded-full max-w-full mx-auto"
                     style={{ maxWidth: "120px" }}
                   />
@@ -322,10 +323,7 @@ export default function Landing() {
                 <div className="px-6">
                   <img
                     alt="..."
-                    src={
-                      require("/home/hp/Desktop/Eventure/Eventure_frontend/eventure/src/assets/img/team-2-800x800.jpg")
-                        .default
-                    }
+                    src={teamImage2}
                     className="shadow-lg rounded-full max-w-full mx-auto"
                     style={{ maxWidth: "120px" }}
                   />
@@ -355,10 +353,7 @@ export default function Landing() {
                 <div className="px-6">
                   <img
                     alt="..."
-                    src={
-                      require("/home/hp/Desktop/Eventure/Eventure_frontend/eventure/src/assets/img/team-3-800x800.jpg")
-                        .default
-                    }
+                    src={teamImage3}
                     className="shadow-lg rounded-full max-w-full mx-auto"
                     style={{ maxWidth: "120px" }}
                   />
@@ -394,10 +389,7 @@ export default function Landing() {
                 <div className="px-6">
                   <img
                     alt="..."
-                    src={
-                      require("/home/hp/Desktop/Eventure/Eventure_frontend/eventure/src/assets/img/team-4-470x470.png")
-                        .default
-                    }
+                    src={teamImage4}
                     className="shadow-lg rounded-full max-w-full mx-auto"
                     style={{ maxWidth: "120px" }}
                   />

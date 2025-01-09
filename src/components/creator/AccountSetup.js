@@ -5,8 +5,9 @@ import Header from "../shared/Header";
 import { useSelector } from "react-redux";
 
 function AccountSetup() {
-  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
+
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     phone_number: "",
     organisation_name: "",
@@ -66,7 +67,6 @@ function AccountSetup() {
 
       navigate("/creator/profile");
     } catch (error) {
-      console.log(error);
       alert("Account setup failed");
     }
   };

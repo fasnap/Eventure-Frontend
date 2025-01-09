@@ -1,6 +1,6 @@
 // src/components/shared/AdminHeader.js
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   FaSignOutAlt,
@@ -11,26 +11,96 @@ import {
 } from "react-icons/fa";
 import { logoutUser } from "../../../api/auth";
 import { useNavigate } from "react-router-dom";
+import { addNotification } from "../../../features/notificationsSlice";
+import { fetchNotifications, markAsViewed } from "../../../api/notification";
 
 const AdminHeader = () => {
   const user = useSelector((state) => state.auth.user);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const notifications = useSelector(
+    (state) => state.notifications.notifications
+  ); // Add this line
+  const accessToken = useSelector((state) => state.auth.accessToken);
+
   const [menuOpen, setMenuOpen] = useState(false);
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
-  useEffect(()=>{
-    if(!isAuthenticated || !user || user.user_type !== 'admin'){
+  const [showNotifications, setShowNotifications] = useState(false); // State to track notification dropdown visibility
+  const notificationRef = useRef(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
       navigate("/admin/login");
     }
-  },[isAuthenticated, user, navigate, dispatch])
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    const socket = new WebSocket(
+      `ws://127.0.0.1:8000/ws/admin/notifications/?token=${accessToken}`
+    );
+
+    socket.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      dispatch(
+        addNotification({
+          id: data.notification_id,
+          message: data.message,
+          viewed: false,
+        })
+      );
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [accessToken, dispatch]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
     navigate("/admin/login");
   };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  useEffect(() => {
+    if (accessToken) {
+      dispatch(fetchNotifications(accessToken));
+    }
+  }, [accessToken, dispatch]);
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  const handleNotificationClick = (notificationId) => {
+    dispatch(
+      markAsViewed({ notificationId, accessToken }) // Use Redux action to update state
+    );
+  };
+  // Close the notifications dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <header className="w-full bg-gray-800 p-4 text-white flex justify-between items-center">
       <div className="flex items-center justify-between w-full md:w-auto">
@@ -70,10 +140,41 @@ const AdminHeader = () => {
         <div className="flex flex-col md:flex-row items-center md:space-x-6 space-y-4 md:space-y-0">
           {/* Notification Icon with Badge */}
           <div className="relative">
-            <FaBell className="text-white-600 hover:text-blue-600 cursor-pointer text-xl" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
-              3
-            </span>
+            <FaBell
+              onClick={toggleNotifications}
+              className="text-white-600 hover:text-blue-600 cursor-pointer text-xl"
+            />
+            {notifications.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
+                {notifications.filter((notif) => !notif.viewed).length}
+              </span>
+            )}
+            {/* Notification Dropdown */}
+            {showNotifications && (
+              <div
+                ref={notificationRef}
+                className="absolute right-0 mt-2 bg-white text-black rounded-lg shadow-lg w-60 p-3"
+              >
+                <div className="font-bold text-sm mb-2">Notifications</div>
+                {notifications.length > 0 ? (
+                  <ul className="space-y-2">
+                    {notifications.map((notification) => (
+                      <li
+                        key={notification.id}
+                        className={`text-sm cursor-pointer ${
+                          notification.viewed ? "bg-gray-200" : ""
+                        }`}
+                        onClick={() => handleNotificationClick(notification.id)}
+                      >
+                        {notification.message}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-gray-500">No new notifications</p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* User Profile Section */}
@@ -81,7 +182,7 @@ const AdminHeader = () => {
           <div className="flex items-center space-x-2">
             <FaUserCircle className="text-white-400 text-xl" />
             <span className="text-white-400 font-small hidden md:block">
-              Hi, {user? user.username :""}
+              Hi, {user ? user.username : ""}
             </span>
             <span
               // onClick={handleLogout}

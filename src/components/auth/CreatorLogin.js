@@ -7,29 +7,21 @@ import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 
 function CreatorLogin() {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [backendError, setBackendError] = useState("");
 
   useEffect(() => {
-    console.log("isAuthenticated:", isAuthenticated);
-
     if (isAuthenticated) {
-      const userType = localStorage.getItem("userType");
-      if (userType === "creator") {
-        navigate("/creator/profile");
-      } else if (userType === "attendee") {
-        navigate("/attendee/profile");
-      } else {
-        console.error("Unknown userType");
-      }
+      navigate("/creator/profile");
     }
   }, [isAuthenticated, navigate]);
 
@@ -74,14 +66,16 @@ function CreatorLogin() {
           setBackendError("Invalid details provided.");
         }
       } catch (error) {
-        console.log(error);
         if (error.response && error.response.data) {
+          const errorMsg =
+            error.response.data.message || error.response.data.error;
+
           // Check if the backend is returning a specific error message
-          setBackendError(
-            error.response.data.message ||
-              error.response.data.error ||
-              "An error occurred. Please try again."
-          );
+          if (errorMsg === "Email is not registered") {
+            setBackendError("Email is not registered. Please sign up first.");
+          } else {
+            setBackendError(errorMsg || "An error occurred. Please try again.");
+          }
         } else {
           setBackendError("An error occurred. Please try again.");
         }
@@ -146,7 +140,6 @@ function CreatorLogin() {
               <h1 className="text-2xl xl:text-4xl font-extrabold text-blue-900 pb-4">
                 Event Creator Login Page
               </h1>
-
             </div>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
@@ -212,7 +205,22 @@ function CreatorLogin() {
                 </button>
                 <p className="mt-6 text-xs text-gray-600 text-center">
                   No account? {/* <a href=""> */}
-                  <span onClick={()=>navigate("/creator/register")} className="text-blue-900 font-semibold cursor-pointer">Sign Up</span>
+                  <span
+                    onClick={() => navigate("/creator/register")}
+                    className="text-blue-900 font-semibold cursor-pointer"
+                  >
+                    Sign Up
+                  </span>
+                  {/* </a> */}
+                </p>
+                <p className="mt-6 text-xs text-gray-600 text-center">
+                  Want to attend event? {/* <a href=""> */}
+                  <span
+                    onClick={() => navigate("/attendee/login")}
+                    className="text-blue-900 font-semibold cursor-pointer"
+                  >
+                    Click Here for login
+                  </span>
                   {/* </a> */}
                 </p>
               </div>

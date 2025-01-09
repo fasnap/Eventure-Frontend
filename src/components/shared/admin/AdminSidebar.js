@@ -1,7 +1,7 @@
 // src/components/shared/AdminSidebar.js
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const AdminSidebar = () => {
   return (
@@ -9,19 +9,64 @@ const AdminSidebar = () => {
       <nav>
         <ul>
           <li className="mb-4">
-            <Link to="/admin/dashboard">Dashboard</Link>
+            <NavLink
+              to="/admin/dashboard"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-yellow-400 font-bold"
+                  : "text-white hover:text-yellow-400"
+              }
+            >
+              Dashboard
+            </NavLink>
           </li>
           <li className="mb-4">
-            <Link to="/admin/users">All Users</Link>
+            <NavLink
+              to="/admin/users"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-yellow-400 font-bold"
+                  : "text-white hover:text-yellow-400"
+              }
+            >
+              All Users
+            </NavLink>
           </li>
           <li className="mb-4">
-            <Link to="/admin/creators">Creators Request</Link>
+            <NavLink
+              to="/admin/creators"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-yellow-400 font-bold"
+                  : "text-white hover:text-yellow-400"
+              }
+            >
+              Creators Request
+            </NavLink>
           </li>
           <li className="mb-4">
-            <Link to="/admin/approved-creators">Approved Creators</Link>
+            <NavLink
+              to="/admin/approved-creators"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-yellow-400 font-bold"
+                  : "text-white hover:text-yellow-400"
+              }
+            >
+              Approved Creators
+            </NavLink>
           </li>
           <li className="mb-4">
-            <Link to="/admin/events">Events</Link>
+            <NavLink
+              to="/admin/events"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-yellow-400 font-bold"
+                  : "text-white hover:text-yellow-400"
+              }
+            >
+              Events
+            </NavLink>
           </li>
           {/* Add more admin links as needed */}
         </ul>

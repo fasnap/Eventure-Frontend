@@ -5,16 +5,17 @@ import { getAllApprovedCreators } from "../../api/admin";
 import AdminHeader from "../shared/admin/AdminHeader";
 import AdminSidebar from "../shared/admin/AdminSidebar";
 import Layout from "../shared/admin/Layout";
+import Spinner from "../shared/Spinner";
 
 function ApprovedCreators() {
+  const accessToken = useSelector((state) => state.auth.accessToken);
+  const userType = useSelector((state) => state.auth.user?.user_type);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [creators, setCreators] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const accessToken = useSelector((state) => state.auth.accessToken);
-  const userType = useSelector((state) => state.auth.user?.user_type);
 
   useEffect(() => {
     if (!accessToken || userType !== "admin") {
@@ -25,7 +26,6 @@ function ApprovedCreators() {
           setLoading(true);
           const result = await getAllApprovedCreators(accessToken);
           setCreators(result);
-          console.log("Fetched creators:", result);
         } catch (err) {
           console.error(err);
         } finally {
@@ -44,10 +44,8 @@ function ApprovedCreators() {
             <h1 className="text-lg font-semibold mb-4">
               Approved Creators List
             </h1>
-            {loading ? (
-              <p>Loading...</p>
-            ) : creators.length === 0 ? (
-              <p>No approved creators found</p>
+            {creators.length === 0 ? (
+              ""
             ) : (
               <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

@@ -9,15 +9,15 @@ import {
 import { blockUnblockUser, getAllUsers } from "../../api/admin";
 import Layout from "../shared/admin/Layout";
 import Modal from "react-modal";
+import Spinner from "../shared/Spinner";
 
 function UsersList() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const { users, loading, error } = useSelector((state) => state.users);
   const accessToken = useSelector((state) => state.auth.accessToken);
   const userType = useSelector((state) => state.auth.user?.user_type);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentAction, setCurrentAction] = useState("");
@@ -136,7 +136,7 @@ function UsersList() {
           </div>
           {error && <p>Error</p>}
           {users.length === 0 ? (
-            <p>No Users Found </p>
+            <Spinner />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">

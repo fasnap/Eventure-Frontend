@@ -1,26 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { FaBell, FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
-import { logoutUser } from "../../api/auth";
+import {
+  FaBell,
+  FaUserCircle,
+  FaBars,
+  FaTimes,
+  FaComments,
+} from "react-icons/fa";
+import { fetchCreatorProfile, logoutUser } from "../../api/auth";
 
 function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { data, status } = useSelector((state) => state.profile);
   const user = useSelector((state) => state.auth.user);
+
+  const [menuOpen, setMenuOpen] = useState(false);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/user/login");
+      navigate("/attendee/login");
+    } else if (user?.user_type === "creator") {
+      dispatch(fetchCreatorProfile());
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
     const userType = user.user_type;
-    console.log("user type:", userType);
     if (userType === "attendee") {
       navigate("/attendee/login");
     } else if (userType === "creator") {
@@ -42,7 +51,7 @@ function Header() {
   };
 
   return (
-    <header className="bg-white shadow-md p-4 flex flex-col md:flex-row items-center justify-between">
+    <header className="bg-white shadow-sm p-4 flex flex-col md:flex-row items-center justify-between">
       {/* Logo and Title */}
       <div className="flex items-center justify-between w-full md:w-auto">
         <div className="flex items-center space-x-3">
@@ -90,6 +99,12 @@ function Header() {
               3
             </span>
           </div>
+          <div className="relative">
+            <FaComments
+              onClick={() => navigate("/chat")}
+              className="text-gray-600 hover:text-blue-600 cursor-pointer text-xl"
+            />
+          </div>
 
           {/* User Profile Section */}
           {isAuthenticated && user ? (
@@ -99,7 +114,10 @@ function Header() {
                 onClick={profileClick}
                 title="Go to Profile"
               />
-              <span className="text-gray-700 font-medium hidden md:block">
+              <span
+                onClick={profileClick}
+                className="cursor-pointer text-gray-700 font-medium hidden md:block"
+              >
                 Hi, {user.username}
               </span>
               <span
@@ -119,7 +137,7 @@ function Header() {
               </Link>
               <Link
                 to="/creator/register"
-                className="text-blue-500 hover:text-blue-700 font-medium"
+                className="text-white hover:text-blue-700 font-medium bg-green-400 py-2 px-4 rounded"
               >
                 Create Event
               </Link>
@@ -128,12 +146,16 @@ function Header() {
 
           {isAuthenticated &&
             (user?.user_type === "creator" ? (
-              <Link
-                to="/creator/event/type"
-                className="text-blue-500 hover:text-blue-700 font-medium"
-              >
-                Create Event
-              </Link>
+              data && data.is_verified ? (
+                <Link
+                  to="/creator/event/type"
+                  className="text-white hover:text-blue-700 font-medium bg-green-400 py-2 px-4 rounded"
+                >
+                  Create Event
+                </Link>
+              ) : (
+                ""
+              )
             ) : user?.user_type === "attendee" ? (
               <Link
                 to="/attendee/home/events"

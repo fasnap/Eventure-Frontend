@@ -7,28 +7,21 @@ import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 
 function AttendeeLogin() {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [backendError, setBackendError] = useState("");
 
   useEffect(() => {
-    console.log(isAuthenticated);
     if (isAuthenticated) {
-      const userType = localStorage.getItem("userType");
-      if (userType === "creator") {
-        navigate("/creator/profile");
-      } else if (userType === "attendee") {
-        navigate("/attendee/profile");
-      } else {
-        console.error("Unknown userType");
-      }
+      navigate("/attendee/profile");
     }
   }, [isAuthenticated, navigate]);
 
@@ -55,11 +48,13 @@ function AttendeeLogin() {
       setLoading(true);
       try {
         const result = await loginUser(formData);
+        console.log("reslt is ", result);
         if (result.user_type === "attendee") {
           localStorage.setItem("userType", result.user_type);
           dispatch(
             loginSuccess({
               user: {
+                id: result.user_id,
                 email: result.email,
                 username: result.username,
                 user_type: result.user_type,
@@ -74,7 +69,6 @@ function AttendeeLogin() {
           setBackendError("Invalid details provided");
         }
       } catch (error) {
-        console.log(error);
         if (error.response && error.response.data) {
           // Check if the backend is returning a specific error message
           setBackendError(
@@ -108,6 +102,7 @@ function AttendeeLogin() {
         dispatch(
           loginSuccess({
             user: {
+              id: data.user_id,
               email: data.email,
               username: data.username,
               user_type: "attendee",
@@ -122,7 +117,15 @@ function AttendeeLogin() {
         console.error("Google authentication failed.");
       }
     } catch (error) {
-      console.error("An error occurred during Google authentication:", error);
+      if (error.response && error.response.data) {
+        // Capture the backend error message and set it to `backendError`
+        setBackendError(
+          error.response.data.error ||
+            "An error occurred during Google authentication."
+        );
+      } else {
+        setBackendError("An error occurred. Please try again.");
+      }
     }
   };
 
@@ -212,12 +215,21 @@ function AttendeeLogin() {
                   </span>
                 </button>
                 <p className="mt-6 text-xs text-gray-600 text-center">
-                  No account? {/* <a href=""> */}
+                  No account?
                   <span
                     onClick={() => navigate("/attendee/register")}
                     className="text-blue-900 font-semibold cursor-pointer"
                   >
                     Sign Up
+                  </span>
+                </p>
+                <p className="mt-6 text-xs text-gray-600 text-center">
+                  Want to create event {/* <a href=""> */}
+                  <span
+                    onClick={() => navigate("/creator/login")}
+                    className="pl-2 text-blue-900 font-semibold cursor-pointer"
+                  >
+                    Login to create
                   </span>
                   {/* </a> */}
                 </p>

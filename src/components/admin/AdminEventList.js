@@ -4,15 +4,15 @@ import { approveEvent, fetchEvents, rejectEvent } from "../../api/admin";
 import Layout from "../shared/admin/Layout";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
+import Spinner from "../shared/Spinner";
 
 function AdminEventList() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const { events, loading, error } = useSelector((state) => state.events);
   const accessToken = useSelector((state) => state.auth.accessToken);
   const userType = useSelector((state) => state.auth.user?.user_type);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEventId, setCurrentEventId] = useState(null);
   const [currentAction, setCurrentAction] = useState("");
@@ -25,7 +25,6 @@ function AdminEventList() {
     }
   }, [dispatch, accessToken, events]);
   const openModal = (action, eventId) => {
-    console.log("event id is ", eventId);
     setCurrentEventId(eventId);
     setCurrentAction(action);
     setIsModalOpen(true);
@@ -38,7 +37,6 @@ function AdminEventList() {
   };
 
   const handleConfirm = () => {
-    console.log("Current event id", currentEventId);
     if (currentAction === "approve") {
       dispatch(approveEvent({ eventId: currentEventId, accessToken }));
     } else if (currentAction === "reject") {
@@ -54,7 +52,7 @@ function AdminEventList() {
 
           {error && <p>Error</p>}
           {events.length === 0 ? (
-            <p>No Events Found </p>
+            ""
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">

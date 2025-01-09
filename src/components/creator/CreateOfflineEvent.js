@@ -9,7 +9,6 @@ import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
-import DateTimePicker from "react-datetime-picker";
 
 function GoogleMapsAutocomplete({ setEventData }) {
   const {
@@ -18,7 +17,12 @@ function GoogleMapsAutocomplete({ setEventData }) {
     suggestions: { status, data },
     setValue,
     clearSuggestions,
-  } = usePlacesAutocomplete();
+  } = usePlacesAutocomplete({
+    requestOptions: {
+      /* Define search options here */
+    },
+    debounce: 300,
+  });
 
   const handleSelect = async (address) => {
     setValue(address, false);
@@ -64,45 +68,50 @@ function GoogleMapsAutocomplete({ setEventData }) {
     </div>
   );
 }
+const libraries = ["places"];
 
 function CreateOfflineEvent() {
-  const [activeSection, setActiveSection] = useState("details");
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { categories, loading, error } = useSelector(
     (state) => state.eventCategories
   );
   const accessToken = useSelector((state) => state.auth.accessToken);
   const loggedInUser = useSelector((state) => state.auth.user);
+
+  const [activeSection, setActiveSection] = useState("details");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [eventData, setEventData] = useState({
     title: "",
     category: "",
     date: "",
-    start_time: new Date(),
-    end_time: new Date(),
+    start_time: "",
+    end_time: "",
     description: "",
     venue: "",
     country: "",
     state: "",
     district: "",
     image: null,
-    ticket_type: "",
+    ticket_type: "free",
     price: 0,
     total_tickets: 1,
     event_type: "offline",
     location: "",
-    latitude: "", // Add this field to store Google Maps location
-    longitude: null, // To store latitude and longitude
+    latitude: null,
+    longitude: null,
   });
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyDjzhcTlzmDJLanj-6dg3vE4gV5K7m1cd0", // API key
-    libraries: ["places"],
+    libraries,
   });
+
   const handleProceed = () => {
     setActiveSection("tickets");
   };
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setEventData((prevData) => ({ ...prevData, [name]: value }));
   };
   const handleFileChange = (e) => {
@@ -129,15 +138,19 @@ function CreateOfflineEvent() {
     }
     return true;
   };
+  // Function to format time to hh:mm
+  const formatTime = (time) => {
+    const date = new Date(`1970-01-01T${time}:00Z`); // Use a fixed date to parse the time correctly
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
   const handleCreateEvent = () => {
     if (!validateTimes()) return;
-    const formattedStartTime = new Date(
-      eventData.start_time
-    ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    const formattedEndTime = new Date(eventData.end_time).toLocaleTimeString(
-      [],
-      { hour: "2-digit", minute: "2-digit" }
-    );
+
+    // Create FormData object
+    const formData = new FormData();
+
+    const formattedStartTime = formatTime(eventData.start_time);
+    const formattedEndTime = formatTime(eventData.end_time);
 
     const requiredFields = [
       "title",
@@ -146,6 +159,7 @@ function CreateOfflineEvent() {
       "start_time",
       "end_time",
       "description",
+      "event_type",
       "venue",
       "country",
       "state",
@@ -155,6 +169,7 @@ function CreateOfflineEvent() {
       "total_tickets",
       "latitude",
       "longitude",
+      "location",
     ];
     const missingField = requiredFields.find((field) => {
       const value = eventData[field];
@@ -166,8 +181,16 @@ function CreateOfflineEvent() {
       );
       return;
     }
-    if (eventData.ticket_type === "paid" && !eventData.price) {
-      toast.error("Please specify a ticket price for paid events.");
+    if (
+      eventData.ticket_type === "paid" &&
+      (eventData.price <= 0 || isNaN(eventData.price))
+    ) {
+      toast.error("Please enter a valid ticket price for paid events.");
+      return;
+    }
+
+    if (eventData.total_tickets <= 0 || isNaN(eventData.total_tickets)) {
+      toast.error("Please enter a valid ticket count.");
       return;
     }
     const selectedDate = new Date(eventData.date);
@@ -183,27 +206,32 @@ function CreateOfflineEvent() {
       start_time: formattedStartTime,
       end_time: formattedEndTime,
     };
-    console.log(eventDataWithFormattedTime);
-
-    dispatch(
-      createEvent({ eventData: eventDataWithFormattedTime, accessToken })
-    );
+    console.log("the data send", eventDataWithFormattedTime);
+    dispatch(createEvent({ eventData: eventDataWithFormattedTime }));
     toast.success("Event created successfully!");
+
+    navigate("/creator/events");
   };
 
   useEffect(() => {
     dispatch(fetchEventCategories());
   }, [dispatch]);
+
   const handleDateTimeChange = (field, value) => {
     setEventData((prevData) => ({ ...prevData, [field]: value }));
   };
+  // Disable previous dates
+  const todayDate = new Date().toISOString().split("T")[0];
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
   return (
     <Layout>
       <ToastContainer />
       <h1 className="mt-8 text-3xl font-semibold text-center">
         CREATE YOUR OFFLINE EVENT
       </h1>
-      <div className="mt-4">
+      <div className="mt-4 ml-10 mr-10">
         <div className="flex space-x-4">
           {/* Section Nav */}
           <div
@@ -282,39 +310,45 @@ function CreateOfflineEvent() {
                           <input
                             name="date"
                             value={eventData.date}
+                            min={todayDate}
                             onChange={handleChange}
                             type="date"
                             className="px-4 py-2 border focus:ring-gray-500 focus:border-gray-900 w-full sm:text-sm border-gray-300 rounded-md focus:outline-none text-gray-600"
                             placeholder="25/02/2020"
                           />
                         </div>
-                        <div className="flex flex-col">
-                          <label className="leading-loose text-gray-700">
-                            Start Time
-                          </label>
-                          <DateTimePicker
-                            onChange={(value) =>
-                              handleDateTimeChange("start_time", value)
-                            }
-                            value={eventData.start_time}
-                            format="HH:mm a"
-                            clearIcon={null} // Hide the clear icon
-                            calendarIcon={null} // Hide the calendar icon
-                            className="text-xl text-gray-900 border border-gray-300 rounded p-2 h-16 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
 
-                        <div className="flex flex-col">
-                          <label className="leading-loose">End Time</label>
-                          <DateTimePicker
-                            onChange={(value) =>
-                              handleDateTimeChange("end_time", value)
-                            }
-                            value={eventData.end_time}
-                            format="HH:mm a"
-                            clearIcon={null} // Hide the clear icon
-                            calendarIcon={null} // Hide the calendar icon
-                          />
+                        <div className="flex items-center space-x-8">
+                          <div className="flex flex-col">
+                            <label className="leading-loose text-gray-700">
+                              Start Time
+                            </label>
+                            <input
+                              type="time"
+                              name="start_time"
+                              value={eventData.start_time}
+                              onChange={(e) =>
+                                handleDateTimeChange(
+                                  "start_time",
+                                  e.target.value
+                                )
+                              }
+                              className="text-xl text-gray-900 border border-gray-300 rounded p-2 h-16 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          <div className="flex flex-col">
+                            <label className="leading-loose">End Time</label>
+                            <input
+                              type="time"
+                              name="end_time"
+                              value={eventData.end_time}
+                              onChange={(e) =>
+                                handleDateTimeChange("end_time", e.target.value)
+                              }
+                              className="text-xl text-gray-900 border border-gray-300 rounded p-2 h-16 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
                         </div>
                       </div>
                       <div className="flex flex-col">
@@ -424,6 +458,7 @@ function CreateOfflineEvent() {
                               id="free"
                               name="ticket_type"
                               value="free"
+                              checked={eventData.ticket_type === "free"}
                               onChange={handleChange}
                               className="focus:ring-blue-500 text-blue-600"
                             />
@@ -440,6 +475,7 @@ function CreateOfflineEvent() {
                               id="paid"
                               name="ticket_type"
                               value="paid"
+                              checked={eventData.ticket_type === "paid"}
                               onChange={handleChange}
                               className="focus:ring-blue-500 text-blue-600"
                             />

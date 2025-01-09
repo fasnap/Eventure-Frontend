@@ -75,7 +75,6 @@ function AttendeeRegister() {
       setLoading(true);
       try {
         const response = await registerUser(formData);
-        console.log(response);
         setIsOtpSent(true);
         setShowModal(true);
         // startResendCooldown();
@@ -113,7 +112,6 @@ function AttendeeRegister() {
         navigate("/attendee/login");
       }, 1000);
     } catch (error) {
-      console.error("OTP verification error: ", error);
       setFeedbackMessage("Invalid OTP, please try again.");
     }
   };
@@ -260,6 +258,16 @@ function AttendeeRegister() {
                     onClick={() => navigate("/attendee/login")}
                   >
                     Sign in
+                  </span>
+                  {/* </a> */}
+                </p>
+                <p className="mt-6 text-xs text-gray-600 text-center">
+                  Want to create Events {/* <a href=""> */}
+                  <span
+                    className="text-blue-900 font-semibold cursor-pointer"
+                    onClick={() => navigate("/creator/register")}
+                  >
+                    Click here 
                   </span>
                   {/* </a> */}
                 </p>

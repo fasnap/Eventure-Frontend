@@ -5,18 +5,19 @@ import { loginSuccess } from "../../features/authSlice";
 import { loginAdminUser } from "../../api/admin";
 
 function AdminLogin() {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
     if (isAuthenticated) {
-      // Redirect admin to the admin dashboard 
+      // Redirect admin to the admin dashboard
       navigate("/admin/dashboard");
     }
   }, [isAuthenticated, navigate]);
@@ -28,11 +29,9 @@ function AdminLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
 
     try {
       const result = await loginAdminUser(formData); // Make sure this loginUser function can handle admin login
-      console.log("Result:", result);
       dispatch(
         loginSuccess({
           user: {
@@ -48,7 +47,6 @@ function AdminLogin() {
         setError("You are not authorized to access this page."); // Set error if user is not admin
         return;
       }
-      console.log("Tokens stored:", result.accessToken, result.refreshToken); // Log tokens
       navigate("/admin/dashboard");
     } catch (error) {
       console.error("Login error", error);
