@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { fetchEvents } from "../../api/event";
 import Layout from "../shared/user/Layout";
 import { MAP_BASE_URL } from "../../api/base";
-import { debounce } from "lodash";
+import { fetchCreators } from "../../api/creator";
+import CreatorListModal from "../creator/CreatorListModal";
 function AllEvents() {
   const user = useSelector((state) => state.auth.user);
   const { events, loading, error } = useSelector((state) => state.events);
@@ -18,7 +19,14 @@ function AllEvents() {
   const [sortBy, setSortBy] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { creators, status } = useSelector((state) => state.creator);
+
+  useEffect(() => {
+    dispatch(fetchCreators());
+  }, [dispatch]);
+
   useEffect(() => {
     if (!user || user.user_type !== "attendee") {
       navigate("/attendee/login");
@@ -60,15 +68,27 @@ function AllEvents() {
   };
 
   const todayDate = new Date().toISOString().split("T")[0];
+  const handleViewAllCreatorsClick = () => {
+    console.log("View All Creator clicked");
+    setIsModalOpen(true);
+  };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   return (
     <Layout>
       <div className="py-16 min-h-screen bg-gray-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg mt-4"
+            onClick={handleViewAllCreatorsClick}
+          >
+            View All Creators
+          </button>{" "}
           <h2 className="font-manrope font-bold text-3xl text-gray-900 mb-8 text-center">
             Available Events
           </h2>
-
           {/* Sorting and Filter Section */}
           <div className="bg-white shadow-sm mb-8 py-4 px-4 sm:px-8 rounded-lg">
             <div className="space-y-4">
@@ -152,7 +172,6 @@ function AllEvents() {
               </div>
             </div>
           </div>
-
           {/* Events Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {events?.results?.length > 0 ? (
@@ -227,7 +246,6 @@ function AllEvents() {
               </div>
             )}
           </div>
-
           {/* Pagination */}
           <div className="flex justify-center mt-8">
             {loading ? (
@@ -272,6 +290,11 @@ function AllEvents() {
             )}
           </div>
         </div>
+        <CreatorListModal
+          creators={creators}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
       </div>
     </Layout>
   );

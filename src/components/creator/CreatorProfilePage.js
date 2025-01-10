@@ -9,9 +9,22 @@ function CreatorProfilePage({ creatorProfile }) {
       <div className="flex">
         <CreatorSidebar />
         <div className="flex-1 pt-4 pl-2">
-          <h1 className="mb-8 text-3xl ml-4 font-bold text-gray-900">
-            Account Details
-          </h1>
+          <div className="flex items-center justify-between mb-8 px-4">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Account Details
+            </h1>
+            <div className="relative">
+              <img
+                src={
+                  creatorProfile.profile_picture ||
+                  "https://via.placeholder.com/150?text=No+Image"
+                }
+                alt="Profile"
+                className="w-40 h-40 rounded-full object-cover shadow-md border-4 border-gray-200 mr-10"
+              />
+            </div>
+          </div>
+
           <div className="p-8 bg-white mx-4 my-4 rounded-sm shadow-sm">
             {/* Account Details Header */}
             <div className="flex items-center justify-between mb-10">

@@ -11,7 +11,6 @@ import {
 } from "../../features/creatorsSlice";
 import Layout from "../shared/admin/Layout";
 import Modal from "react-modal";
-import Spinner from "../shared/Spinner";
 
 function CreatorAccountSetupRequestList() {
   const { creators, loading, error } = useSelector((state) => state.creators);

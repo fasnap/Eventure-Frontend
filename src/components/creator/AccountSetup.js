@@ -13,6 +13,7 @@ function AccountSetup() {
     organisation_name: "",
     organisation_address: "",
     document_copy: null,
+    profile_picture: null,
     first_name: "",
     last_name: "",
   });
@@ -50,6 +51,9 @@ function AccountSetup() {
     }
     if (!formData.document_copy) {
       formErrors.document_copy = "Document copy is required";
+    }
+    if (!formData.profile_picture) {
+      formErrors.profile_picture = "Profile picture is required";
     }
     setErrors(formErrors);
     return Object.keys(formErrors).length === 0;
@@ -157,6 +161,15 @@ function AccountSetup() {
         />
         {errors.document_copy && (
           <p className="text-red-600 text-sm">{errors.document_copy}</p>
+        )}
+        <input
+          type="file"
+          name="profile_picture"
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+        />
+        {errors.profile_picture && (
+          <p className="text-red-600 text-sm">{errors.profile_picture}</p>
         )}
         <button
           type="submit"

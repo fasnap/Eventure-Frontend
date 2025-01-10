@@ -109,6 +109,7 @@ export const logoutUser = () => async (dispatch) => {
       }
     );
     // localStorage.clear();
+    localStorage.clear();
     dispatch(logout());
   } catch (error) {
     console.error("Error logging out:", error);

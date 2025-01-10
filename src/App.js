@@ -27,7 +27,6 @@ import EventDetail from "./components/attendee/EventDetail";
 import Landing from "./components/attendee/Landing";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RegisteredEvents from "./components/attendee/RegisteredEvents";
-import Chat from "./components/chat/Chat";
 import CreateOnlineEvent from "./components/creator/CreateOnlineEvent";
 import PaymentPage from "./components/attendee/PaymentPage";
 import PaymentSuccessPage from "./components/attendee/PaymentSuccessPage";
@@ -37,6 +36,7 @@ import AttendedUsers from "./components/event/AttendedUsers";
 import RegisteredUsers from "./components/event/RegisteredUsers";
 import AttendeeProfile from "./components/attendee/AttendeeProfile";
 import AttendedEvents from "./components/attendee/AttendedEvents";
+import CreatorDetail from "./components/creator/CreatorDetail";
 
 function App() {
   return (
@@ -62,6 +62,7 @@ function App() {
               <Route path="/payment/:id" element={<PaymentPage />} />
               <Route path="/payment-success" element={<PaymentSuccessPage />} />
               <Route path="/payment-failure" element={<PaymentFailurePage />} />
+              <Route path="/creator/:creatorId" element={<CreatorDetail />} />
             </Route>
 
             <Route path="/creator/login" element={<CreatorLogin />} />
@@ -107,8 +108,6 @@ function App() {
               <Route path="/admin/events" element={<AdminEventList />} />
             </Route>
             <Route path="*" element={<PageNotFound />} />
-
-            <Route path="/chat" element={<Chat />} />
           </Routes>
         </Router>
       </div>

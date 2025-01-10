@@ -27,7 +27,7 @@ const AdminHeader = () => {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false); // State to track notification dropdown visibility
   const notificationRef = useRef(null);
-
+  const [logoutClicked, setLogoutClicked] = useState(false);
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/admin/login");
@@ -59,9 +59,16 @@ const AdminHeader = () => {
     };
   }, [accessToken, dispatch]);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    navigate("/admin/login");
+  const handleLogout = async () => {
+    setLogoutClicked(true);
+    try {
+      await dispatch(logoutUser()); // Ensure logout is complete before navigating
+      navigate("/admin/login"); // Redirect to login after logout
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      setLogoutClicked(false); // Re-enable the logout button
+    }
   };
 
   const toggleMenu = () => {
@@ -190,7 +197,10 @@ const AdminHeader = () => {
             >
               <FaSignOutAlt
                 onClick={handleLogout}
-                className="h-6 w-5 text-white"
+                className={`text-red-700 font-medium cursor-pointer hidden md:block ${
+                  logoutClicked ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={logoutClicked}
               />
             </span>
           </div>

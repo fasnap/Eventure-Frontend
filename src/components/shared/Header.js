@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  FaBell,
-  FaUserCircle,
-  FaBars,
-  FaTimes,
-  FaComments,
-} from "react-icons/fa";
+import { FaBell, FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import { fetchCreatorProfile, logoutUser } from "../../api/auth";
 
 function Header() {
@@ -18,6 +12,7 @@ function Header() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [logoutInProgress, setLogoutInProgress] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -27,14 +22,16 @@ function Header() {
     }
   }, [isAuthenticated, navigate, user]);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
+  const handleLogout = async () => {
+    setLogoutInProgress(true);
+    await dispatch(logoutUser());
     const userType = user.user_type;
     if (userType === "attendee") {
       navigate("/attendee/login");
     } else if (userType === "creator") {
       navigate("/creator/login");
     }
+    setLogoutInProgress(false);
   };
 
   const toggleMenu = () => {
@@ -99,12 +96,6 @@ function Header() {
               3
             </span>
           </div>
-          <div className="relative">
-            <FaComments
-              onClick={() => navigate("/chat")}
-              className="text-gray-600 hover:text-blue-600 cursor-pointer text-xl"
-            />
-          </div>
 
           {/* User Profile Section */}
           {isAuthenticated && user ? (
@@ -122,9 +113,12 @@ function Header() {
               </span>
               <span
                 onClick={handleLogout}
-                className="text-red-700 font-medium cursor-pointer hidden md:block"
+                className={`text-red-700 font-medium cursor-pointer hidden md:block ${
+                  logoutInProgress ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={logoutInProgress}
               >
-                Logout
+                {logoutInProgress ? "Logging out..." : "Logout"}
               </span>
             </div>
           ) : (
