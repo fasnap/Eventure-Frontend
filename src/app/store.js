@@ -10,6 +10,8 @@ import paymentReducer from "../features/paymentSlice";
 import feedbackReducer from "../features/feedbackSlice";
 import dashboardReducer from "../features/dashboardSlice";
 import creatorReducer from "../features/creatorSlice";
+import chatReducer from "../features/chatSlice";
+
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -23,5 +25,6 @@ export const store = configureStore({
     feedback: feedbackReducer,
     dashboard: dashboardReducer,
     creator: creatorReducer,
+    chat: chatReducer,
   },
 });

@@ -45,7 +45,6 @@ function AccountSetup() {
       formErrors.organisation_name =
         "Organization name must contain at least 4 letters";
     }
-
     if (!formData.organisation_address.trim()) {
       formErrors.organisation_address = "Organization address is required";
     }
@@ -68,7 +67,6 @@ function AccountSetup() {
     });
     try {
       await setupCreatorAccount(data);
-
       navigate("/creator/profile");
     } catch (error) {
       alert("Account setup failed");
@@ -76,108 +74,140 @@ function AccountSetup() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100">
       <Header />
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 max-w-lg mx-auto p-4 bg-white shadow-md rounded"
-      >
-        <h2 className="text-xl font-semibold mb-4">
+      <div className="max-w-2xl mx-auto p-6 mt-10 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
           Complete Your Account Setup
         </h2>
-        {/* Firstname, Lastname, Email (Read-only) */}
-        <div className="space-y-2">
-          <input
-            type="text"
-            name="first_name"
-            onChange={handleChange}
-            value={formData.first_name}
-            placeholder="First Name"
-            className="w-full p-2 border rounded "
-          />
-          {errors.first_name && (
-            <p className="text-red-600 text-sm">{errors.first_name}</p>
-          )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Personal Information Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+              Personal Information
+            </h3>
+            <div className="space-y-4">
+              <input
+                type="text"
+                name="first_name"
+                onChange={handleChange}
+                value={formData.first_name}
+                placeholder="First Name"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              {errors.first_name && (
+                <p className="text-red-600 text-sm">{errors.first_name}</p>
+              )}
 
-          <input
-            type="text"
-            name="last_name"
-            onChange={handleChange}
-            value={formData.last_name}
-            placeholder="Last Name"
-            className="w-full p-2 border rounded"
-          />
-          {errors.last_name && (
-            <p className="text-red-600 text-sm">{errors.last_name}</p>
-          )}
-          <input
-            type="email"
-            name="email"
-            value={user.email}
-            placeholder="Email"
-            readOnly
-            className="w-full p-2 border rounded bg-gray-100"
-          />
-        </div>
+              <input
+                type="text"
+                name="last_name"
+                onChange={handleChange}
+                value={formData.last_name}
+                placeholder="Last Name"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              {errors.last_name && (
+                <p className="text-red-600 text-sm">{errors.last_name}</p>
+              )}
 
-        {/* Editable fields */}
-        <input
-          type="text"
-          name="phone_number"
-          placeholder="Phone Number"
-          value={formData.phone_number}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
-        {errors.phone_number && (
-          <p className="text-red-600 text-sm">{errors.phone_number}</p>
-        )}
-        <input
-          type="text"
-          name="organisation_name"
-          placeholder="Organization Name"
-          value={formData.organisation_name}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
-        {errors.organisation_name && (
-          <p className="text-red-600 text-sm">{errors.organisation_name}</p>
-        )}
-        <textarea
-          name="organisation_address"
-          placeholder="Organization Address"
-          value={formData.organisation_address}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        ></textarea>
-        {errors.organisation_address && (
-          <p className="text-red-600 text-sm">{errors.organisation_address}</p>
-        )}
-        <input
-          type="file"
-          name="document_copy"
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
-        {errors.document_copy && (
-          <p className="text-red-600 text-sm">{errors.document_copy}</p>
-        )}
-        <input
-          type="file"
-          name="profile_picture"
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
-        {errors.profile_picture && (
-          <p className="text-red-600 text-sm">{errors.profile_picture}</p>
-        )}
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-        >
-          Submit for Admin Approval
-        </button>
-      </form>
+              <input
+                type="email"
+                name="email"
+                value={user.email}
+                placeholder="Email"
+                readOnly
+                className="w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Organization Details Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+              Organization Details
+            </h3>
+            <div className="space-y-4">
+              <input
+                type="text"
+                name="phone_number"
+                placeholder="Phone Number"
+                value={formData.phone_number}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              {errors.phone_number && (
+                <p className="text-red-600 text-sm">{errors.phone_number}</p>
+              )}
+
+              <input
+                type="text"
+                name="organisation_name"
+                placeholder="Organization Name"
+                value={formData.organisation_name}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              {errors.organisation_name && (
+                <p className="text-red-600 text-sm">
+                  {errors.organisation_name}
+                </p>
+              )}
+
+              <textarea
+                name="organisation_address"
+                placeholder="Organization Address"
+                value={formData.organisation_address}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              ></textarea>
+              {errors.organisation_address && (
+                <p className="text-red-600 text-sm">
+                  {errors.organisation_address}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Upload Documents Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+              Upload Documents
+            </h3>
+            <div className="space-y-4">
+              <input
+                type="file"
+                name="document_copy"
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-md"
+              />
+              {errors.document_copy && (
+                <p className="text-red-600 text-sm">{errors.document_copy}</p>
+              )}
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Upload Profile Picture
+              </h3>
+              <input
+                type="file"
+                name="profile_picture"
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-md"
+              />
+              {errors.profile_picture && (
+                <p className="text-red-600 text-sm">{errors.profile_picture}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition duration-300 font-semibold"
+          >
+            Submit for Admin Approval
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

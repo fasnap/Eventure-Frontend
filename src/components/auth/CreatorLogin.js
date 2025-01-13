@@ -52,6 +52,7 @@ function CreatorLogin() {
           dispatch(
             loginSuccess({
               user: {
+                id: result.user_id,
                 email: result.email,
                 username: result.username,
                 user_type: result.user_type,
@@ -102,6 +103,7 @@ function CreatorLogin() {
         dispatch(
           loginSuccess({
             user: {
+              id: data.user_id,
               email: data.email,
               username: data.username,
               user_type: "creator",

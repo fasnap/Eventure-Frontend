@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  fetchAllFeedback,
   fetchAttendeeRegisteredEvents,
   fetchCreatorEvents,
   fetchEvents,
@@ -188,19 +187,6 @@ const eventsSlice = createSlice({
             : event
         );
       })
-
-      // // Event feedback
-      // .addCase(fetchAllFeedback.pending, (state) => {
-      //   state.loading = true;
-      // })
-      // .addCase(fetchAllFeedback.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.feedbacks = action.payload;
-      // })
-      // .addCase(fetchAllFeedback.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload;
-      // });
   },
 });
 

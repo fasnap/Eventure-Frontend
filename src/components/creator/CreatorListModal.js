@@ -1,14 +1,17 @@
 import React from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 function CreatorListModal({ creators, isOpen, onClose }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   if (!isOpen) return null; // Don't render the modal if it's not open
 
   const handleCreatorClick = (creatorId) => {
     onClose();
     navigate(`/creator/${creatorId}`);
   };
+
   return (
     <div
       className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50"
@@ -43,7 +46,7 @@ function CreatorListModal({ creators, isOpen, onClose }) {
                   <img
                     src={creator.profile_picture || "/default-profile.jpg"} // Fallback if no image
                     alt={creator.username}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
+                    className="w-16 h-16 rounded-full object-cover border-2"
                   />
                   {/* Creator Info */}
                   <div className="flex flex-col">
@@ -58,13 +61,15 @@ function CreatorListModal({ creators, isOpen, onClose }) {
                     </p>
                   </div>
                   <p className="text-sm text-gray-800">{creator.email}</p>
-                  <p className="text-sm text-gray-800">chat</p>
+                  <button className="text-sm text-blue-600 hover:text-blue-800 font-semibold border-b-2 border-transparent hover:border-blue-500">
+                    chat
+                  </button>
 
                   <button
-                    onClick={()=>handleCreatorClick(creator.id)}
+                    onClick={() => handleCreatorClick(creator.id)}
                     className="text-sm text-blue-600 hover:text-blue-800 font-semibold border-b-2 border-transparent hover:border-blue-500"
                   >
-                     Details
+                    Details
                   </button>
                 </li>
               ))}

@@ -37,6 +37,7 @@ import RegisteredUsers from "./components/event/RegisteredUsers";
 import AttendeeProfile from "./components/attendee/AttendeeProfile";
 import AttendedEvents from "./components/attendee/AttendedEvents";
 import CreatorDetail from "./components/creator/CreatorDetail";
+import ChatPage from "./components/chat/ChatPage";
 
 function App() {
   return (
@@ -108,6 +109,7 @@ function App() {
               <Route path="/admin/events" element={<AdminEventList />} />
             </Route>
             <Route path="*" element={<PageNotFound />} />
+            <Route path="/chat" element={<ChatPage />} />
           </Routes>
         </Router>
       </div>
