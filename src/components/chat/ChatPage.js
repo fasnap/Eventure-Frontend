@@ -73,6 +73,10 @@ const ChatPage = () => {
                 id: data.sender_id,
                 username: data.sender.username,
               },
+              media_url: data.media_url,
+              media_type: data.media_type,
+              file_name: data.file_name,
+              file_size: data.file_size,
             },
           })
         );
@@ -96,17 +100,22 @@ const ChatPage = () => {
     dispatch(setSelectedRoom(room));
   };
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = (e, mediaData = null) => {
     e.preventDefault();
-    if (message.trim() && socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(
-        JSON.stringify({
-          type: "message",
-          message: message.trim(),
-        })
-      );
-      setMessage("");
-    }
+    if (
+      (!message.trim() && !mediaData) ||
+      !socket ||
+      socket.readyState !== WebSocket.OPEN
+    )
+      return;
+    socket.send(
+      JSON.stringify({
+        type: "message",
+        message: message.trim(),
+        media: mediaData,
+      })
+    );
+    setMessage("");
   };
 
   const scrollToBottom = () => {

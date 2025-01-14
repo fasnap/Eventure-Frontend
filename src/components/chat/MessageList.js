@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Check, CheckCheck } from "lucide-react";
+import MediaMessage from "./MediaMessage";
 
 function MessageList({ messages, currentUser, messagesEndRef, socket }) {
   useEffect(() => {
@@ -65,7 +66,12 @@ function MessageList({ messages, currentUser, messagesEndRef, socket }) {
                 isOwnMessage ? "bg-white text-black" : "bg-gray-200"
               }`}
             >
-              <p className="break-words">{msg.content}</p>
+              {msg.media_url ? (
+                <MediaMessage message={msg} />
+              ) : (
+                <p className="break-words">{msg.content}</p>
+              )}
+
               <div className="flex items-center justify-end gap-1 text-sm">
                 <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
                 <MessageStatus
