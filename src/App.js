@@ -3,7 +3,6 @@ import "./tailwind.css";
 import "./App.css";
 import { store } from "./app/store";
 import { Provider } from "react-redux";
-import AttendeeProfilePage from "./pages/attendees/AttendeeProfilePage";
 import UserLoginPage from "./pages/UserLoginPage";
 import AttendeeRegister from "./components/auth/AttendeeRegister";
 import CreatorRegister from "./components/auth/CreatorRegister";
@@ -38,11 +37,15 @@ import AttendeeProfile from "./components/attendee/AttendeeProfile";
 import AttendedEvents from "./components/attendee/AttendedEvents";
 import CreatorDetail from "./components/creator/CreatorDetail";
 import ChatPage from "./components/chat/ChatPage";
+import { Toaster } from "react-hot-toast";
+import EventReport from "./components/event/EventReport";
+import VideoStreaming from "./components/streaming/VideoStreaming";
 
 function App() {
   return (
     <Provider store={store}>
       <div className="App">
+        <Toaster />
         <Router>
           <Routes>
             <Route path="/user/login" element={<UserLoginPage />} />
@@ -91,6 +94,7 @@ function App() {
                 path="/event/registered-users/:eventId"
                 element={<RegisteredUsers />}
               />
+              <Route path="/event/report" element={<EventReport />} />
             </Route>
 
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -110,6 +114,7 @@ function App() {
             </Route>
             <Route path="*" element={<PageNotFound />} />
             <Route path="/chat" element={<ChatPage />} />
+            <Route path="/event/stream/:eventId" element={<VideoStreaming />} />
           </Routes>
         </Router>
       </div>

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { FaBell, FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
+import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import { fetchCreatorProfile, logoutUser } from "../../api/auth";
+import { MessageCircle } from "lucide-react";
 
 function Header() {
   const { data, status } = useSelector((state) => state.profile);
@@ -46,6 +47,9 @@ function Header() {
       navigate("/creator/profile");
     }
   };
+  const handleChatClick = () => {
+    navigate("/chat");
+  };
 
   return (
     <header className="bg-white shadow-sm p-4 flex flex-col md:flex-row items-center justify-between">
@@ -53,10 +57,9 @@ function Header() {
       <div className="flex items-center justify-between w-full md:w-auto">
         <div className="flex items-center space-x-3">
           <img
-            onClick={() => navigate("/")}
-            src="https://via.placeholder.com/40"
-            alt="Eventure Logo"
-            className="cursor-pointer w-8 h-8 md:w-10 md:h-10 rounded-full"
+            src={`${process.env.PUBLIC_URL}/logo.svg`}
+            alt="Logo"
+            className="w-10 h-auto"
           />
           <h1
             onClick={() => navigate("/")}
@@ -89,14 +92,6 @@ function Header() {
 
         {/* Notification and User Section */}
         <div className="flex flex-col md:flex-row items-center md:space-x-6 space-y-4 md:space-y-0">
-          {/* Notification Icon with Badge */}
-          <div className="relative">
-            <FaBell className="text-gray-600 hover:text-blue-600 cursor-pointer text-xl" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
-              3
-            </span>
-          </div>
-
           {/* User Profile Section */}
           {isAuthenticated && user ? (
             <div className="flex items-center space-x-2">
@@ -111,6 +106,13 @@ function Header() {
               >
                 Hi, {user.username}
               </span>
+              <button
+                onClick={() => handleChatClick()}
+                className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-full transition-colors"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span>Chat</span>
+              </button>
               <span
                 onClick={handleLogout}
                 className={`text-red-700 font-medium cursor-pointer hidden md:block ${

@@ -6,7 +6,6 @@ import {
   fetchEventStatistics,
   fetchSingleEvent,
   markAttendance,
-  startStreaming,
   submitFeedback,
 } from "../api/event";
 import {
@@ -24,7 +23,6 @@ const initialState = {
   selectedEvent: null,
   loading: false,
   error: null,
-  streamingStatus: null,
   attendanceMessage: "",
   statistics: null,
 };
@@ -92,22 +90,6 @@ const eventsSlice = createSlice({
       .addCase(fetchAttendeeRegisteredEvents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-
-      // Handle start streaming actions
-      .addCase(startStreaming.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.streamingStatus = null;
-      })
-      .addCase(startStreaming.fulfilled, (state) => {
-        state.loading = false;
-        state.streamingStatus = "success";
-      })
-      .addCase(startStreaming.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-        state.streamingStatus = "error";
       })
 
       // Attendance marking
@@ -186,7 +168,7 @@ const eventsSlice = createSlice({
             ? { ...event, feedback: action.payload }
             : event
         );
-      })
+      });
   },
 });
 

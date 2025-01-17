@@ -11,7 +11,8 @@ import feedbackReducer from "../features/feedbackSlice";
 import dashboardReducer from "../features/dashboardSlice";
 import creatorReducer from "../features/creatorSlice";
 import chatReducer from "../features/chatSlice";
-
+import eventReportReducer from "../features/eventReportSlice";
+import streamingReducer from "../features/streamingSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -26,5 +27,7 @@ export const store = configureStore({
     dashboard: dashboardReducer,
     creator: creatorReducer,
     chat: chatReducer,
+    EventReport: eventReportReducer,
+    streaming: streamingReducer
   },
 });

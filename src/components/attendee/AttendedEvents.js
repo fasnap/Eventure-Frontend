@@ -8,6 +8,7 @@ import {
   submitFeedback,
   updateFeedback,
 } from "../../api/event";
+import NoDataFound from "../shared/NoDataFound";
 
 function AttendedEvents() {
   const { attendedEvents } = useSelector((state) => state.events);
@@ -24,16 +25,20 @@ function AttendedEvents() {
         <AttendeeSidebar />
 
         <div className="flex-1 pt-4 pb-4 pl-8">
-          <h1 className="ml-8 mt-8 mb-8 text-3xl font-bold text-green-600">
-            Attended Events
-          </h1>
-
-          {attendedEvents && attendedEvents.length > 0 && (
+          {attendedEvents && attendedEvents.length > 0 ? (
             <div>
+              <h1 className="ml-8 mt-8 mb-8 text-3xl font-bold text-green-600">
+                Attended Events
+              </h1>
               {attendedEvents.map((event) => (
                 <EventCard key={event.id} event={event} />
               ))}
             </div>
+          ) : (
+            <NoDataFound
+              message="No Attended Events Found"
+              subMessage="We couldn't find any attended events."
+            />
           )}
         </div>
       </div>

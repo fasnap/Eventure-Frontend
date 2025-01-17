@@ -61,9 +61,7 @@ function CreatorListModal({ creators, isOpen, onClose }) {
                     </p>
                   </div>
                   <p className="text-sm text-gray-800">{creator.email}</p>
-                  <button className="text-sm text-blue-600 hover:text-blue-800 font-semibold border-b-2 border-transparent hover:border-blue-500">
-                    chat
-                  </button>
+                 
 
                   <button
                     onClick={() => handleCreatorClick(creator.id)}

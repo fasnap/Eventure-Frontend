@@ -133,21 +133,6 @@ export const fetchAttendeeRegisteredEvents = createAsyncThunk(
   }
 );
 
-export const startStreaming = createAsyncThunk(
-  "events/startStreaming",
-  async ({ eventId }, { rejectWithValue }) => {
-    try {
-      const response = await axiosInstance.post(
-        `/events/${eventId}/start_streaming/`,
-        {}
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
 export const createRazorpayOrder = createAsyncThunk(
   "payment/createRazorpayOrder",
   async (eventId, { rejectWithValue }) => {
