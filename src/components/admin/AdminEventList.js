@@ -23,7 +23,7 @@ function AdminEventList() {
     } else {
       dispatch(fetchEvents({ accessToken }));
     }
-  }, [dispatch, accessToken, events]);
+  }, [dispatch, accessToken, navigate, userType]);
   const openModal = (action, eventId) => {
     setCurrentEventId(eventId);
     setCurrentAction(action);
@@ -36,13 +36,22 @@ function AdminEventList() {
     setCurrentAction("");
   };
 
-  const handleConfirm = () => {
-    if (currentAction === "approve") {
-      dispatch(approveEvent({ eventId: currentEventId, accessToken }));
-    } else if (currentAction === "reject") {
-      dispatch(rejectEvent({ eventId: currentEventId, accessToken }));
+  const handleConfirm = async () => {
+    try {
+      if (currentAction === "approve") {
+        await dispatch(
+          approveEvent({ eventId: currentEventId, accessToken })
+        ).unwrap();
+      } else if (currentAction === "reject") {
+        await dispatch(
+          rejectEvent({ eventId: currentEventId, accessToken })
+        ).unwrap();
+      }
+      await dispatch(fetchEvents({ accessToken })).unwrap();
+      closeModal();
+    } catch (error) {
+      console.error(error);
     }
-    closeModal();
   };
   return (
     <Layout>

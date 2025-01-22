@@ -7,6 +7,7 @@ import QRCodeScanner from "./QRCodeScanner";
 import CreatorSidebar from "../shared/creator/CreatorSidebar";
 import Header from "../shared/Header";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function CreatorEvents() {
   const { events, loading, error } = useSelector((state) => state.events);
@@ -152,10 +153,37 @@ function EventCard({ event, onScanClick }) {
   };
 
   const confirmStatusChange = async () => {
-    console.log("event id ", event.id);
-    dispatch(updateEventStatus({ eventId: event.id, status: statusToUpdate })); // Dispatch action to update status
-    setShowConfirmation(false);
-    dispatch(fetchCreatorEvents(accessToken));
+    const loadingToastId = toast.loading("Updating event status...");
+
+    try {
+      await dispatch(
+        updateEventStatus({ eventId: event.id, status: statusToUpdate })
+      ).unwrap();
+      // Dispatch action to update status
+      await dispatch(fetchCreatorEvents(accessToken)).unwrap();
+      setShowConfirmation(false);
+      toast.dismiss(loadingToastId);
+      toast.success(`Event status successfully updated to ${statusToUpdate}`, {
+        duration: 3000,
+        position: "top-center",
+        style: {
+          background: "#10B981",
+          color: "#fff",
+        },
+      });
+    } catch (error) {
+      console.log("Error updating event status", error);
+      toast.dismiss(loadingToastId);
+      toast.error(`Failed to update event,  ${error.error}`, {
+        duration: 4000,
+        position: "top-center",
+        style: {
+          background: "#EF4444",
+          color: "#fff",
+        },
+      });
+      setShowConfirmation(false);
+    }
   };
 
   const today = new Date().toISOString().split("T")[0];
@@ -166,149 +194,144 @@ function EventCard({ event, onScanClick }) {
   };
 
   return (
-    <div className="ml-8 mr-4 mb-8 rounded-lg p-6 bg-white shadow-md">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center">
-          <img
-            className="h-20 w-40 object-cover"
-            src={event.image}
-            alt={event.title}
-          />
-          <h2 className="text-xl font-semibold mb-4 ml-8">{event.title}</h2>
-        </div>
-      </div>
-      <p className="mb-4 mt-8">{event.description}</p>
-      <hr />
-      <div className="flex flex-wrap justify-start space-x-4 mt-8">
-        <p className="text-sm text-gray-600 mt-8">
-          <span className="font-bold mb-4">Type: </span> {event.event_type}
-        </p>
-        <p className="text-sm ml-20 text-gray-600 mt-8">
-          <span className="font-bold mb-4">Starts on: </span>
-          {event.date} {event.start_time}
-        </p>
-        <p className="text-sm ml-20 text-gray-600 mt-8">
-          <span className="font-bold mb-4">Category: </span>
-          {event.category}
-        </p>
-
-        {event.event_type === "online" && event.meeting_link && (
-          <p className="text-sm ml-20 text-gray-600 mt-8">
-            <span className="font-bold mb-4">Meet Link: </span>
-            {event.meeting_link}
-          </p>
-        )}
-      </div>
-
-      {onScanClick && (
-        <button
-          className="mt-10 bg-blue-400 text-white px-4 py-2 rounded"
-          onClick={() => onScanClick(event.id)}
-        >
-          Scan QR
-        </button>
-      )}
-      <div className="flex space-x-4 mt-8">
-        {event.creator_status === "upcoming" && isEventToday && (
-          <button
-            className="inline-block bg-teal-500 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md"
-            onClick={() => handleStatusChange("ongoing")}
-          >
-            Mark as Ongoing
-          </button>
-        )}
-        {event.creator_status === "ongoing" &&
-          event.event_type === "online" &&
-          event.admin_status === "approved" && (
-            <button
-              className="inline-block bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-400"
-              onClick={() => handleStartStream(event.id)}
-            >
-              Start Stream
-            </button>
-          )}
-
-        {event.creator_status === "ongoing" && (
-          <button
-            className="inline-block bg-yellow-300 text-white hover:bg-green-600 px-6 py-2 rounded-lg shadow-md"
-            onClick={() => handleStatusChange("completed")}
-          >
-            Mark as Completed
-          </button>
-        )}
-        {event.creator_status === "completed" &&
-          event.admin_status === "approved" && (
-            <>
-              <Link
-                to={`/event/attended-users/${event.id}`}
-                className="inline-block bg-green-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                View Attended Users
-              </Link>
-              <Link
-                to={`/event/registered-users/${event.id}`}
-                className="inline-block bg-blue-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                View Registered Users
-              </Link>
-            </>
-          )}
-
-        {event.creator_status === "upcoming" &&
-          event.admin_status === "approved" && (
-            <>
-              <Link
-                to={`/event/registered-users/${event.id}`}
-                className="inline-block bg-blue-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                View Registered Users
-              </Link>
-            </>
-          )}
-
-        {event.creator_status === "ongoing" &&
-          event.admin_status === "approved" && (
-            <>
-              <Link
-                to={`/event/attended-users/${event.id}`}
-                className="inline-block bg-green-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                View Attended Users
-              </Link>
-              <Link
-                to={`/event/registered-users/${event.id}`}
-                className="inline-block bg-blue-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                View Registered Users
-              </Link>
-            </>
-          )}
-      </div>
-      {/* Confirmation modal */}
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-96 max-w-full">
-            <h3 className="text-lg font-semibold text-center">
-              Are you sure you want to update the status?
-            </h3>
-            <div className="mt-4 flex justify-center space-x-4">
-              <button
-                className="bg-red-500 text-white px-6 py-2 rounded-lg w-32"
-                onClick={() => setShowConfirmation(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-green-500 text-white px-6 py-2 rounded-lg w-32"
-                onClick={confirmStatusChange}
-              >
-                Confirm
-              </button>
-            </div>
+    <>
+      <div className="ml-8 mr-4 mb-8 rounded-lg p-6 bg-white shadow-md">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <img
+              className="h-20 w-40 object-cover"
+              src={event.image}
+              alt={event.title}
+            />
+            <h2 className="text-xl font-semibold mb-4 ml-8">{event.title}</h2>
           </div>
         </div>
-      )}
-    </div>
+        <p className="mb-4 mt-8">{event.description}</p>
+        <hr />
+        <div className="flex flex-wrap justify-start space-x-4 mt-8">
+          <p className="text-sm text-gray-600 mt-8">
+            <span className="font-bold mb-4">Type: </span> {event.event_type}
+          </p>
+          <p className="text-sm ml-20 text-gray-600 mt-8">
+            <span className="font-bold mb-4">Starts on: </span>
+            {event.date} {event.start_time}
+          </p>
+          <p className="text-sm ml-20 text-gray-600 mt-8">
+            <span className="font-bold mb-4">Category: </span>
+            {event.category}
+          </p>
+        </div>
+
+        {onScanClick && (
+          <button
+            className="mt-10 bg-blue-400 text-white px-4 py-2 rounded"
+            onClick={() => onScanClick(event.id)}
+          >
+            Scan QR
+          </button>
+        )}
+        <div className="flex space-x-4 mt-8">
+          {event.creator_status === "upcoming" && isEventToday && (
+            <button
+              className="inline-block bg-teal-500 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md"
+              onClick={() => handleStatusChange("ongoing")}
+            >
+              Mark as Ongoing
+            </button>
+          )}
+          {event.creator_status === "ongoing" &&
+            event.event_type === "online" &&
+            event.admin_status === "approved" && (
+              <button
+                className="inline-block bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-400"
+                onClick={() => handleStartStream(event.id)}
+              >
+                Start Stream
+              </button>
+            )}
+
+          {event.creator_status === "ongoing" && (
+            <button
+              className="inline-block bg-yellow-300 text-white hover:bg-green-600 px-6 py-2 rounded-lg shadow-md"
+              onClick={() => handleStatusChange("completed")}
+            >
+              Mark as Completed
+            </button>
+          )}
+          {event.creator_status === "completed" &&
+            event.admin_status === "approved" && (
+              <>
+                <Link
+                  to={`/event/attended-users/${event.id}`}
+                  className="inline-block bg-green-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  View Attended Users
+                </Link>
+                <Link
+                  to={`/event/registered-users/${event.id}`}
+                  className="inline-block bg-blue-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  View Registered Users
+                </Link>
+              </>
+            )}
+
+          {event.creator_status === "upcoming" &&
+            event.admin_status === "approved" && (
+              <>
+                <Link
+                  to={`/event/registered-users/${event.id}`}
+                  className="inline-block bg-blue-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  View Registered Users
+                </Link>
+              </>
+            )}
+
+          {event.creator_status === "ongoing" &&
+            event.admin_status === "approved" && (
+              <>
+                <Link
+                  to={`/event/attended-users/${event.id}`}
+                  className="inline-block bg-green-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  View Attended Users
+                </Link>
+                <Link
+                  to={`/event/registered-users/${event.id}`}
+                  className="inline-block bg-blue-400 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  View Registered Users
+                </Link>
+              </>
+            )}
+        </div>
+        {/* Confirmation modal */}
+        {showConfirmation && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-96 max-w-full">
+              <h3 className="text-lg font-semibold text-center">
+                Are you sure you want to update the status?
+              </h3>
+              <div className="mt-4 flex justify-center space-x-4">
+                <button
+                  className="bg-red-500 text-white px-6 py-2 rounded-lg w-32"
+                  onClick={() => setShowConfirmation(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="bg-green-500 text-white px-6 py-2 rounded-lg w-32"
+                  onClick={confirmStatusChange}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 

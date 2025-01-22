@@ -87,7 +87,7 @@ function AllEvents() {
           >
             View All Creators
           </button>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-10">
+          <div className="">
             {events?.results?.length > 0 ? (
               <>
                 <h2 className="font-manrope font-bold text-3xl text-gray-900 mb-8 text-center">
@@ -181,72 +181,75 @@ function AllEvents() {
                     </div>
                   </div>
                 </div>
-                {/* Event Listing */}
-                {events.results.map((event) => (
-                  <div
-                    key={event.id}
-                    className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg"
-                  >
-                    <div className="w-full h-48">
-                      <img
-                        src={`${event.image}`}
-                        alt={event.title}
-                        className="w-full h-full object-cover rounded-t-lg"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3
-                          className="font-semibold text-lg text-gray-800 cursor-pointer hover:text-indigo-600"
-                          onClick={() => handleEventClick(event.id)}
-                        >
-                          {event.title}
-                        </h3>
-                        <span
-                          className={`${
-                            event.type === "online"
-                              ? "text-green-500"
-                              : "text-red-500"
-                          } font-semibold`}
-                        >
-                          {event.type === "online" ? "Online" : "Offline"}
-                        </span>
-                      </div>
 
-                      <div className="text-gray-600 text-sm mb-4">
-                        <p>
-                          {new Date(event.date).toLocaleDateString("en-IN", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                          <br />
-                          {new Date(
-                            `${event.date}T${event.start_time}`
-                          ).toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}
-                        </p>
-                        {event.latitude && event.longitude && (
-                          <a
-                            href={`${MAP_BASE_URL}${event.latitude},${event.longitude}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-500 hover:text-blue-700 text-sm mt-2"
-                          >
-                            Location
-                          </a>
-                        )}
+                {/* Event Listing */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {events.results.map((event) => (
+                    <div
+                      key={event.id}
+                      className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+                    >
+                      <div className="w-full h-48">
+                        <img
+                          src={`${event.image}`}
+                          alt={event.title}
+                          className="w-full h-full object-cover rounded-t-lg"
+                        />
                       </div>
-                      <p className="font-medium text-green-600 text-md mt-2">
-                        ₹ {event.price}
-                      </p>
+                      <div className="p-4">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3
+                            className="font-semibold text-lg text-gray-800 cursor-pointer hover:text-indigo-600 truncate max-w-[70%]"
+                            onClick={() => handleEventClick(event.id)}
+                          >
+                            {event.title}
+                          </h3>
+                          <span
+                            className={`${
+                              event.type === "online"
+                                ? "text-green-500"
+                                : "text-red-500"
+                            } font-semibold text-sm`}
+                          >
+                            {event.type === "online" ? "Online" : "Offline"}
+                          </span>
+                        </div>
+
+                        <div className="text-gray-600 text-sm mb-4">
+                          <p>
+                            {new Date(event.date).toLocaleDateString("en-IN", {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                            <br />
+                            {new Date(
+                              `${event.date}T${event.start_time}`
+                            ).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
+                          </p>
+                          {event.latitude && event.longitude && (
+                            <a
+                              href={`${MAP_BASE_URL}${event.latitude},${event.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:text-blue-700 text-sm mt-2 inline-block"
+                            >
+                              Location
+                            </a>
+                          )}
+                        </div>
+                        <p className="font-medium text-green-600 text-md mt-2">
+                          ₹ {event.price}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </>
             ) : (
               <div className="flex justify-center items-center w-full">

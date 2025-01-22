@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  createEvent,
   fetchAttendeeRegisteredEvents,
   fetchCreatorEvents,
   fetchEvents,
@@ -7,6 +8,7 @@ import {
   fetchSingleEvent,
   markAttendance,
   submitFeedback,
+  updateEventStatus,
 } from "../api/event";
 import {
   fetchAttendedEvents,
@@ -37,6 +39,21 @@ const eventsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+
+      .addCase(createEvent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createEvent.fulfilled, (state, action) => {
+        state.loading = false;
+        // Add the new event to the events array
+        state.events.push(action.payload);
+      })
+      .addCase(createEvent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // Fetching all the events
       .addCase(fetchEvents.pending, (state) => {
         state.loading = true;
@@ -156,6 +173,28 @@ const eventsSlice = createSlice({
         state.attendedEvents = action.payload;
       })
       .addCase(fetchAttendedEvents.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Update event status
+      .addCase(updateEventStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(updateEventStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update the specific event in the state
+        const updatedEvent = action.payload;
+        const index = state.events.findIndex(
+          (event) => event.id === updatedEvent.id
+        );
+        if (index !== -1) {
+          state.events[index] = updatedEvent;
+        }
+      })
+      .addCase(updateEventStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

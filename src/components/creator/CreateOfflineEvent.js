@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../shared/user/Layout";
 import { useDispatch, useSelector } from "react-redux";
-import { createEvent, fetchEventCategories } from "../../api/event";
+import {
+  createEvent,
+  fetchCreatorEvents,
+  fetchEventCategories,
+} from "../../api/event";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useLoadScript } from "@react-google-maps/api";
@@ -143,7 +147,7 @@ function CreateOfflineEvent() {
     const date = new Date(`1970-01-01T${time}:00Z`); // Use a fixed date to parse the time correctly
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
-  const handleCreateEvent = () => {
+  const handleCreateEvent = async () => {
     if (!validateTimes()) return;
 
     // Create FormData object
@@ -206,11 +210,20 @@ function CreateOfflineEvent() {
       start_time: formattedStartTime,
       end_time: formattedEndTime,
     };
-    console.log("the data send", eventDataWithFormattedTime);
-    dispatch(createEvent({ eventData: eventDataWithFormattedTime }));
-    toast.success("Event created successfully!");
+    try {
+      // Wait for event creation to complete
+      await dispatch(createEvent({ eventData: eventDataWithFormattedTime }));
 
-    navigate("/creator/events");
+      // Fetch updated events list
+      await dispatch(fetchCreatorEvents(accessToken));
+
+      toast.success("Event created successfully!");
+
+      // Navigate to events page after successful creation
+      navigate("/creator/events");
+    } catch (error) {
+      toast.error("Failed to create event. Please try again.");
+    }
   };
 
   useEffect(() => {

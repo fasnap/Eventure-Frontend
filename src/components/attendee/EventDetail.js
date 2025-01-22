@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchSingleEvent, registerForEvent } from "../../api/event";
+import { fetchAttendeeRegisteredEvents, fetchSingleEvent, registerForEvent } from "../../api/event";
 import { useDispatch, useSelector } from "react-redux";
 import { MAP_BASE_URL } from "../../api/base";
 import { FaUserCircle, FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 import { clearSelectedEvent } from "../../features/eventsSlice";
-import { toast, ToastContainer } from "react-toastify";
+import toast from "react-hot-toast";
 import Header from "../shared/Header";
 
 function EventDetail() {
@@ -20,6 +20,7 @@ function EventDetail() {
   const navigate = useNavigate();
   const [eventStartDate, setEventStartDate] = useState(null);
   const [eventEndDate, setEventEndDate] = useState(null);
+  const [isRegistering, setIsRegistering] = useState(false); // Track registration state
 
   useEffect(() => {
     dispatch(clearSelectedEvent());
@@ -57,26 +58,87 @@ function EventDetail() {
     }
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!selectedEvent) {
       toast.error("Event details not available.");
       return;
     }
-    if (selectedEvent.ticket_type === "paid") {
-      sessionStorage.setItem("canAccessPaymentPage", "true");
-      navigate(`/payment/${id}`);
-    } else {
-      dispatch(registerForEvent({ accessToken, eventId: id, user: user }))
-        .unwrap()
-        .then((data) => {
-          toast.success("Successfully registered");
-
-          navigate("/attendee/registered_events");
-        })
-        .catch((err) => {
-          toast.error("Registration failed");
-        });
+    if (selectedEvent.available_ticket === 0) {
+      toast.error("Tickets are not available for this event.");
+      return;
     }
+    setIsRegistering(true);
+    try {
+      if (selectedEvent.ticket_type === "paid") {
+        sessionStorage.setItem("canAccessPaymentPage", "true");
+        navigate(`/payment/${id}`);
+      } else {
+        const loadingToast = toast.loading("Registering for event...");
+
+        const response = await dispatch(
+          registerForEvent({ accessToken, eventId: id, user: user })
+        ).unwrap();
+        toast.dismiss(loadingToast);
+        toast.success("Successfully registered for the event!", {
+          duration: 3000,
+          icon: "🎉",
+        });
+        await dispatch(fetchAttendeeRegisteredEvents(accessToken));
+
+        setTimeout(() => {
+          navigate("/attendee/registered_events");
+        }, 1500);
+      }
+    } catch (err) {
+      toast.error(err.message || "Registration failed. Please try again", {
+        duration: 4000,
+      });
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
+  // Get registration button styles and text based on state
+  const getRegistrationButton = () => {
+    if (selectedEvent.is_registered) {
+      return (
+        <button
+          disabled
+          className="px-6 py-2 bg-gray-400 text-white rounded-lg shadow cursor-not-allowed transition-colors duration-200"
+        >
+          Already Registered
+        </button>
+      );
+    }
+
+    if (isRegistering) {
+      return (
+        <button
+          disabled
+          className="px-6 py-2 bg-blue-300 text-white rounded-lg shadow cursor-wait transition-colors duration-200"
+        >
+          {selectedEvent.ticket_type === "paid"
+            ? "Processing..."
+            : "Registering..."}
+        </button>
+      );
+    }
+
+    return (
+      <button
+        onClick={handleRegister}
+        disabled={loading || selectedEvent.available_ticket === 0}
+        className={`px-6 py-2 rounded-lg shadow transition-colors duration-200 ${
+          selectedEvent.available_ticket === 0
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-500 hover:bg-blue-600 text-white"
+        }`}
+      >
+        {selectedEvent.ticket_type === "paid"
+          ? "Proceed to payment"
+          : "Register for free"}
+      </button>
+    );
   };
 
   if (error) {
@@ -90,7 +152,6 @@ function EventDetail() {
   return (
     <div>
       <Header />
-      <ToastContainer />
       {selectedEvent ? (
         <div className="container mx-auto px-4 py-9 space-y-8">
           <div className="space-y-4 text-center md:text-left">
@@ -205,28 +266,7 @@ function EventDetail() {
             </p>
           </div>
           {/* Register Button */}
-          <div className="text-center mt-6">
-            {selectedEvent.is_registered ? (
-              <div>
-                <button
-                  disabled
-                  className="px-6 py-2 bg-gray-500 text-white rounded-lg shadow cursor-not-allowed"
-                >
-                  You are registered
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={handleRegister}
-                disabled={loading}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600"
-              >
-                {selectedEvent.ticket_type === "paid"
-                  ? "Proceed to payment"
-                  : "Register for free"}
-              </button>
-            )}
-          </div>
+          <div className="text-center mt-6">{getRegistrationButton()}</div>
         </div>
       ) : (
         <div className="container mx-auto px-4 py-9 text-center">

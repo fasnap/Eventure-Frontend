@@ -3,7 +3,11 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { createEvent, fetchEventCategories } from "../../api/event";
+import {
+  createEvent,
+  fetchCreatorEvents,
+  fetchEventCategories,
+} from "../../api/event";
 import Layout from "../shared/user/Layout";
 
 function CreateOnlineEvent() {
@@ -31,7 +35,6 @@ function CreateOnlineEvent() {
     price: 0,
     total_tickets: 1,
     event_type: "online",
-    meeting_link: "",
   });
   const handleProceed = () => {
     setActiveSection("tickets");
@@ -72,27 +75,9 @@ function CreateOnlineEvent() {
     const date = new Date(`1970-01-01T${time}:00Z`); // Use a fixed date to parse the time correctly
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
-  const validateMeetingLink = (link) => {
-    const meetingLinkPattern =
-      /^(https?:\/\/)?(www\.)?(meet\.google\.com|zoom\.us|teams\.microsoft\.com|webex\.com)\/.+$/;
-    if (!link || link.trim() === "") {
-      toast.error("Meeting link is required.");
-      return false;
-    }
-    if (!meetingLinkPattern.test(link)) {
-      toast.error(
-        "Please enter a valid meeting link (Google Meet, Zoom, Teams, Webex)."
-      );
-      return false;
-    }
-    return true;
-  };
 
-  const handleCreateEvent = () => {
-    console.log("Meeting Link:", eventData.meeting_link);
-
+  const handleCreateEvent = async () => {
     if (!validateTimes()) return;
-    if (!validateMeetingLink(eventData.meeting_link)) return;
     const formattedStartTime = formatTime(eventData.start_time);
     const formattedEndTime = formatTime(eventData.end_time);
 
@@ -109,7 +94,6 @@ function CreateOnlineEvent() {
       "image",
       "ticket_type",
       "total_tickets",
-      "meeting_link",
     ];
     const missingField = requiredFields.find((field) => {
       const value = eventData[field];
@@ -146,11 +130,20 @@ function CreateOnlineEvent() {
       start_time: formattedStartTime,
       end_time: formattedEndTime,
     };
-    console.log("event data", eventDataWithFormattedTime);
-    dispatch(createEvent({ eventData: eventDataWithFormattedTime }));
-    toast.success("Event created successfully!");
+    try {
+      // Wait for event creation to complete
+      await dispatch(createEvent({ eventData: eventDataWithFormattedTime }));
 
-    navigate("/creator/events");
+      // Fetch updated events list
+      await dispatch(fetchCreatorEvents(accessToken));
+
+      toast.success("Event created successfully!");
+
+      // Navigate to events page after successful creation
+      navigate("/creator/events");
+    } catch (error) {
+      toast.error("Failed to create event. Please try again.");
+    }
   };
 
   useEffect(() => {
@@ -337,17 +330,6 @@ function CreateOnlineEvent() {
                           Image should be in JPEG, JPG, or PNG format and below
                           200kb.
                         </p>
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="leading-loose">Meeting Link</label>
-                        <input
-                          type="url"
-                          name="meeting_link"
-                          value={eventData.meeting_link}
-                          onChange={handleChange}
-                          className="px-4 py-2 border focus:ring-gray-500 focus:border-gray-900 w-full sm:text-sm border-gray-300 rounded-md focus:outline-none text-gray-600"
-                          placeholder="Enter meeting link"
-                        />
                       </div>
                     </div>
 

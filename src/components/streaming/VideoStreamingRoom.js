@@ -25,7 +25,7 @@ function VideoStreamingRoom({ eventId, onError }) {
       console.log("Stream tracks:", localStream.getTracks());
     }
   }, [localStream]);
-  // WebSocket initialization
+
   useEffect(() => {
     initializeCall();
     return () => {
@@ -410,6 +410,8 @@ function VideoStreamingRoom({ eventId, onError }) {
               muted
               className="w-full h-[360px] bg-gray-900 rounded-lg object-cover"
             />
+            <h1>You</h1>
+
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
               <button
                 className={`p-2 rounded-full ${
@@ -438,6 +440,7 @@ function VideoStreamingRoom({ eventId, onError }) {
 
           {/* Remote Videos */}
           <div className="flex-1 flex flex-col items-center p-4">
+            {console.log("remot streams????????????", remoteStreams)}
             {remoteStreams.size > 0 ? (
               <div className="grid grid-cols-1 gap-4 w-full">
                 {Array.from(remoteStreams.entries()).map(([peerId, stream]) => (
@@ -454,6 +457,7 @@ function VideoStreamingRoom({ eventId, onError }) {
                       }}
                       className="w-full h-full bg-gray-900 rounded-lg object-cover"
                     />
+                    <h1>Hello {peerId}</h1>
                   </div>
                 ))}
               </div>

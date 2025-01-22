@@ -110,13 +110,6 @@ function EventCard({ event }) {
           <span className="font-bold mb-4">Category: </span>
           {event.category}
         </p>
-
-        {event.event_type === "online" && event.meeting_link && (
-          <p className="text-sm ml-20 text-gray-600 mt-8">
-            <span className="font-bold mb-4">Meet Link: </span>
-            {event.meeting_link}
-          </p>
-        )}
       </div>
 
       <div className="mt-8">
