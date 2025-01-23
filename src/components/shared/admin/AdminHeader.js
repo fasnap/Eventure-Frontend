@@ -38,7 +38,7 @@ const AdminHeader = () => {
 
   useEffect(() => {
     const socket = new WebSocket(
-      `ws://127.0.0.1:8000/ws/admin/notifications/?token=${accessToken}`
+      `ws://18.206.174.87/ws/admin/notifications/?token=${accessToken}`
     );
 
     socket.onopen = () => {

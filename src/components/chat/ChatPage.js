@@ -42,7 +42,7 @@ const ChatPage = () => {
   const connectWebSocket = (roomId) => {
     const token = localStorage.getItem("accessToken");
     const ws = new WebSocket(
-      `ws://127.0.0.1:8000/ws/chat/${roomId}/?token=${token}`
+      `ws://18.206.174.87/ws/chat/${roomId}/?token=${token}`
     );
 
     ws.onopen = () => {
