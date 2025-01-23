@@ -118,7 +118,7 @@ function CreatorRegister() {
     const { credential } = response;
     try {
       const res = await axios.post(
-        "http://18.206.174.87/api/user/google-auth/",
+        "https://eventure.fasna.xyz/api/user/google-auth/",
         {
           token: credential,
           user_type: "attendee",
@@ -257,7 +257,7 @@ function CreatorRegister() {
                 </p>
 
                 <p className="mt-6 text-xs text-gray-600 text-center">
-                  Want to attend event  {/* <a href=""> */}
+                  Want to attend event {/* <a href=""> */}
                   <span
                     className="text-blue-900 font-semibold cursor-pointer"
                     onClick={() => navigate("/attendee/register")}
@@ -266,7 +266,6 @@ function CreatorRegister() {
                   </span>
                   {/* </a> */}
                 </p>
-
               </div>
             </div>
             {showModal && (

@@ -90,7 +90,7 @@ function CreatorLogin() {
     const { credential } = response;
     try {
       const res = await axios.post(
-        "http://18.206.174.87/api/user/google-auth/",
+        "https://eventure.fasna.xyz/api/user/google-auth/",
         {
           token: credential,
           user_type: "creator",
