@@ -38,7 +38,7 @@ const AdminHeader = () => {
 
   useEffect(() => {
     const socket = new WebSocket(
-      `ws://eventure.fasna.xyz/ws/admin/notifications/?token=${accessToken}`
+      `wss://eventure.fasna.xyz/ws/admin/notifications/?token=${accessToken}`
     );
 
     socket.onopen = () => {
