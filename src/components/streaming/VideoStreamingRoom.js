@@ -84,7 +84,7 @@ function VideoStreamingRoom({ eventId, onError }) {
       return;
     }
 
-    const wsUrl = `ws://18.206.174.87/ws/stream/${eventId}/?token=${token}`;
+    const wsUrl = `ws://eventure.fasna.xyz/ws/stream/${eventId}/?token=${token}`;
     websocketRef.current = new WebSocket(wsUrl);
 
     websocketRef.current.onopen = () => {

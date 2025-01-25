@@ -38,7 +38,7 @@ const AdminHeader = () => {
 
   useEffect(() => {
     const socket = new WebSocket(
-      `ws://18.206.174.87/ws/admin/notifications/?token=${accessToken}`
+      `ws://eventure.fasna.xyz/ws/admin/notifications/?token=${accessToken}`
     );
 
     socket.onopen = () => {
