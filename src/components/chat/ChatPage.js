@@ -42,7 +42,7 @@ const ChatPage = () => {
   const connectWebSocket = (roomId) => {
     const token = localStorage.getItem("accessToken");
     const ws = new WebSocket(
-      `ws://eventure.fasna.xyz/ws/chat/${roomId}/?token=${token}`
+      `wss://eventure.fasna.xyz/ws/chat/${roomId}/?token=${token}`
     );
 
     ws.onopen = () => {
