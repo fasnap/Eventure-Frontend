@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useDispatch, useSelector } from "react-redux";
 import { markAttendance } from "../../api/event";
