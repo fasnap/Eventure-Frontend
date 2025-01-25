@@ -102,6 +102,13 @@ const QRCodeScanner = ({ selectedEventId, eventCreator, onScanComplete }) => {
         {scannerEnabled && (
           <QRScanner
             delay={300}
+            constraints={{
+              video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: "environment",
+              },
+            }}
             style={{
               width: "100%",
               height: "100%",
@@ -109,8 +116,9 @@ const QRCodeScanner = ({ selectedEventId, eventCreator, onScanComplete }) => {
               top: "0",
               left: "0",
               zIndex: 1,
-              objectFit: "cover", // Ensures the image scales correctly
+              objectFit: "cover",
             }}
+            willReadFrequently={true} // Add this line
             onScan={handleScan}
             onError={handleError}
           />
