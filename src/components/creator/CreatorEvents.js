@@ -186,7 +186,7 @@ function EventCard({ event, onScanClick }) {
     }
   };
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("en-CA");
   const isEventToday = event.date === today;
 
   const handleStartStream = (eventId) => {
@@ -231,14 +231,16 @@ function EventCard({ event, onScanClick }) {
           </button>
         )}
         <div className="flex space-x-4 mt-8">
-          {event.creator_status === "upcoming" && isEventToday && (
-            <button
-              className="inline-block bg-teal-500 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md"
-              onClick={() => handleStatusChange("ongoing")}
-            >
-              Mark as Ongoing
-            </button>
-          )}
+          {event.creator_status === "upcoming" &&
+            event.admin_status === "approved" &&
+            isEventToday && (
+              <button
+                className="inline-block bg-teal-500 text-white hover:bg-blue-600 px-6 py-2 rounded-lg shadow-md"
+                onClick={() => handleStatusChange("ongoing")}
+              >
+                Mark as Ongoing
+              </button>
+            )}
           {event.creator_status === "ongoing" &&
             event.event_type === "online" &&
             event.admin_status === "approved" && (
