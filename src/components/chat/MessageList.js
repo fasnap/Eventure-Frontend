@@ -6,17 +6,31 @@ function MessageList({ messages, currentUser, messagesEndRef, socket }) {
   useEffect(() => {
     if (!messages || !socket) return;
 
-    const unreadMessages = messages.filter(
-      (msg) => msg.status === "sent" && msg.sender?.id !== currentUser?.id
-    );
-    unreadMessages.forEach((msg) => {
-      socket.send(
-        JSON.stringify({
-          type: "message_read",
-          message_id: msg.id,
-        })
-      );
-    });
+    const sendReadReceipts = () => {
+      if (socket.readyState === WebSocket.OPEN) {
+        const unreadMessages = messages.filter(
+          (msg) => msg.status === "sent" && msg.sender?.id !== currentUser?.id
+        );
+
+        unreadMessages.forEach((msg) => {
+          try {
+            socket.send(
+              JSON.stringify({
+                type: "message_read",
+                message_id: msg.id,
+              })
+            );
+          } catch (error) {
+            console.error("Failed to send read receipt:", error);
+          }
+        });
+      } else {
+        // Retry after a short delay if socket not ready
+        setTimeout(sendReadReceipts, 200);
+      }
+    };
+
+    sendReadReceipts();
   }, [messages, socket, currentUser]);
   if (!messages) return null;
 
