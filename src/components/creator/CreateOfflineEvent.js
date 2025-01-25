@@ -115,7 +115,17 @@ function CreateOfflineEvent() {
   };
   const handleChange = (e) => {
     const { name, value } = e.target;
-
+    if (name === "title") {
+      const titleRegex = /^[a-zA-Z0-9\s]+$/;
+      if (value === "" || titleRegex.test(value)) {
+        setEventData((prevData) => ({ ...prevData, [name]: value }));
+      } else {
+        toast.error(
+          "Event title can only contain letters, numbers, and spaces."
+        );
+      }
+      return;
+    }
     setEventData((prevData) => ({ ...prevData, [name]: value }));
   };
   const handleFileChange = (e) => {
