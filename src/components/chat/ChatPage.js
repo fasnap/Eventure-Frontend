@@ -22,6 +22,9 @@ const ChatPage = () => {
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
   const currentUser = useSelector((state) => state.auth.user);
+  const [mediaPreview, setMediaPreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     dispatch(fetchChatRooms());
@@ -38,7 +41,13 @@ const ChatPage = () => {
       }
     };
   }, [selectedRoom]);
-
+  const clearFileSelection = () => {
+    setMediaPreview(null);
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
   const connectWebSocket = (roomId) => {
     const token = localStorage.getItem("accessToken");
     const ws = new WebSocket(
@@ -162,6 +171,12 @@ const ChatPage = () => {
               message={message}
               setMessage={setMessage}
               onSubmit={handleSendMessage}
+              mediaPreview={mediaPreview}
+              setMediaPreview={setMediaPreview}
+              selectedFile={selectedFile}
+              setSelectedFile={setSelectedFile}
+              fileInputRef={fileInputRef}
+              clearFileSelection={clearFileSelection}
             />
           </>
         ) : (
