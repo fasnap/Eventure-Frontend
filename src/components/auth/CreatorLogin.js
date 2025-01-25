@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { loginSuccess } from "../../features/authSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import { USER_BASE_URL } from "../../api/base";
 
 function CreatorLogin() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -89,13 +90,10 @@ function CreatorLogin() {
   const handleGoogleSuccess = async (response) => {
     const { credential } = response;
     try {
-      const res = await axios.post(
-        "https://eventure.fasna.xyz/api/user/google-auth/",
-        {
-          token: credential,
-          user_type: "creator",
-        }
-      );
+      const res = await axios.post(`${USER_BASE_URL}google-auth/`, {
+        token: credential,
+        user_type: "creator",
+      });
       const data = res.data;
       if (data.access) {
         localStorage.setItem("accessToken", data.access);

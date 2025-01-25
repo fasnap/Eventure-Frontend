@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { loginSuccess } from "../../features/authSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import { USER_BASE_URL } from "../../api/base";
 
 function AttendeeLogin() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -88,13 +89,10 @@ function AttendeeLogin() {
   const handleGoogleSuccess = async (response) => {
     const { credential } = response;
     try {
-      const res = await axios.post(
-        "https://eventure.fasna.xyz/api/user/google-auth/",
-        {
-          token: credential,
-          user_type: "attendee",
-        }
-      );
+      const res = await axios.post(`${USER_BASE_URL}google-auth/`, {
+        token: credential,
+        user_type: "attendee",
+      });
       const data = res.data;
       if (data.access) {
         localStorage.setItem("accessToken", data.access);

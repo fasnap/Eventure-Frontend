@@ -5,6 +5,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { loginSuccess } from "../../features/authSlice";
 import { useDispatch } from "react-redux";
+import { USER_BASE_URL } from "../../api/base";
 function AttendeeRegister() {
   const [formData, setFormData] = useState({
     email: "",
@@ -119,13 +120,10 @@ function AttendeeRegister() {
   const handleGoogleSuccess = async (response) => {
     const { credential } = response;
     try {
-      const res = await axios.post(
-        "https://eventure.fasna.xyz/api/user/google-auth/",
-        {
-          token: credential,
-          user_type: "attendee",
-        }
-      );
+      const res = await axios.post(`${USER_BASE_URL}google-auth/`, {
+        token: credential,
+        user_type: "attendee",
+      });
       const data = res.data;
       if (data.access) {
         localStorage.setItem("accessToken", data.access);
@@ -267,7 +265,7 @@ function AttendeeRegister() {
                     className="text-blue-900 font-semibold cursor-pointer"
                     onClick={() => navigate("/creator/register")}
                   >
-                    Click here 
+                    Click here
                   </span>
                   {/* </a> */}
                 </p>

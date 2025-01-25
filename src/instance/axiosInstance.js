@@ -1,8 +1,9 @@
 import axios from "axios";
+import { BASE_URL } from "../api/base";
 
 // Create an Axios instance with default configuration
 const axiosInstance = axios.create({
-  baseURL: "https://eventure.fasna.xyz/api",
+  baseURL: `${BASE_URL}`,
   headers: {
     "Content-Type": "application/json",
   },

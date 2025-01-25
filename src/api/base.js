@@ -1,5 +1,6 @@
-export const ADMIN_BASE_URL = "https://eventure.fasna.xyz/api/admin_panel/";
-export const USER_BASE_URL = "https://eventure.fasna.xyz/api/user/";
-export const EVENT_BASE_URL = "https://eventure.fasna.xyz/api/events/";
-export const MAP_BASE_URL = "https://www.google.com/maps?q="
-export const CHAT_BASE_URL= "https://eventure.fasna.xyz/api/chat/";
+export const ADMIN_BASE_URL = process.env.REACT_APP_ADMIN_BASE_URL;
+export const USER_BASE_URL = process.env.REACT_APP_USER_BASE_URL;
+export const EVENT_BASE_URL = process.env.REACT_APP_EVENT_BASE_URL;
+export const MAP_BASE_URL = process.env.REACT_APP_MAP_BASE_URL;
+export const CHAT_BASE_URL = process.env.REACT_APP_CHAT_BASE_URL;
+export const BASE_URL = process.env.REACT_APP_BASE_URL;
