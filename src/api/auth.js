@@ -77,6 +77,7 @@ export const getCreatorProfile = async () => {
 };
 
 export const setupCreatorAccount = async (data) => {
+  console.log("data to pass", data);
   const accessToken = localStorage.getItem("accessToken");
   try {
     const response = await axios.put(`${USER_BASE_URL}creator/profile/`, data, {
@@ -85,8 +86,10 @@ export const setupCreatorAccount = async (data) => {
         "Content-Type": "multipart/form-data",
       },
     });
+    console.log("api resposne is ", response.data);
     return response.data;
   } catch (error) {
+    console.log("error in api resposne",error);
     throw error;
   }
 };

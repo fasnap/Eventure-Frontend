@@ -66,10 +66,11 @@ function AccountSetup() {
       data.append(key, formData[key]);
     });
     try {
-      console.log("submit button clicked")
+      console.log("submit button clicked", data);
       await setupCreatorAccount(data);
       navigate("/creator/profile");
     } catch (error) {
+      console.log("cat block", error);
       alert("Account setup failed");
     }
   };
