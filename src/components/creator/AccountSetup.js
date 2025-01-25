@@ -66,6 +66,7 @@ function AccountSetup() {
       data.append(key, formData[key]);
     });
     try {
+      console.log("submit button clicked")
       await setupCreatorAccount(data);
       navigate("/creator/profile");
     } catch (error) {
