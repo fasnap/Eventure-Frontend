@@ -88,9 +88,12 @@ const ChatPage = () => {
       console.error("WebSocket error:", error);
     };
 
-    ws.onclose = () => {
-      console.log("WebSocket Disconnected");
+    ws.onclose = (event) => {
+      console.log("WebSocket Disconnected", event);
       // Implement reconnection logic if needed
+      setTimeout(() => {
+        connectWebSocket(roomId);
+      }, 1000);
     };
 
     setSocket(ws);
@@ -102,20 +105,24 @@ const ChatPage = () => {
 
   const handleSendMessage = (e, mediaData = null) => {
     e.preventDefault();
-    if (
-      (!message.trim() && !mediaData) ||
-      !socket ||
-      socket.readyState !== WebSocket.OPEN
-    )
-      return;
-    socket.send(
-      JSON.stringify({
-        type: "message",
-        message: message.trim(),
-        media: mediaData,
-      })
-    );
-    setMessage("");
+    const checkAndSend = () => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(
+          JSON.stringify({
+            type: "message",
+            message: message.trim(),
+            media: mediaData,
+          })
+        );
+        setMessage("");
+        clearFileSelection();
+      } else {
+        // Retry after a short delay
+        setTimeout(checkAndSend, 100);
+      }
+    };
+
+    checkAndSend();
   };
 
   const scrollToBottom = () => {
