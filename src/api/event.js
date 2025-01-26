@@ -247,8 +247,8 @@ export const updateFeedback = createAsyncThunk(
   "events/updateFeedback",
   async ({ feedbackId, feedback }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(
-        `/events/${feedbackId}/update/feedback/`,
+      const response = await axiosInstance.put(
+        `/events/feedback/${feedbackId}/update/`,
         feedback
       );
       return response.data;
@@ -266,6 +266,20 @@ export const fetchAllFeedback = createAsyncThunk(
       console.log("event id ", eventId, "feedback response: ", response.data);
 
       return { eventId, feedbacks: response.data };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const deleteFeedback = createAsyncThunk(
+  "feedback/deleteFeedback",
+  async ({ feedbackId }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(
+        `/events/feedback/${feedbackId}/delete/`
+      );
+      return feedbackId;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }

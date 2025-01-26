@@ -4,11 +4,13 @@ import { fetchAttendedEvents } from "../../api/attendance";
 import Header from "../shared/Header";
 import AttendeeSidebar from "../shared/attendee/AttendeeSidebar";
 import {
+  deleteFeedback,
   fetchAllFeedback,
   submitFeedback,
   updateFeedback,
 } from "../../api/event";
 import NoDataFound from "../shared/NoDataFound";
+import FeedbackDeleteModal from "./FeedbackDeleteModal";
 
 function AttendedEvents() {
   const { attendedEvents } = useSelector((state) => state.events);
@@ -50,6 +52,10 @@ function EventCard({ event }) {
   const [comment, setComment] = useState("");
   const [hover, setHover] = useState(0);
   const [toastVisible, setToastVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // New state for delete modal
 
   const feedbacks = useSelector((state) =>
     state.feedback[event.id] ? state.feedback[event.id] : []
@@ -57,35 +63,84 @@ function EventCard({ event }) {
   const { user } = useSelector((state) => state.auth); // Assuming the logged-in user is available here.
 
   const dispatch = useDispatch();
-  console.log("feedbacks", feedbacks);
-  console.log("user is id ", user);
+
   useEffect(() => {
     dispatch(fetchAllFeedback({ eventId: event.id }));
   }, [dispatch, event.id]);
 
   const userFeedback = feedbacks.find((fb) => fb.attendee === user.id);
 
-  const handleSubmitFeedback = () => {
-    dispatch(
-      submitFeedback({ eventId: event.id, feedback: { rating, comment } })
-    );
+  useEffect(() => {
+    if (userFeedback) {
+      setRating(userFeedback.rating);
+      setComment(userFeedback.comment);
+    }
+  }, [userFeedback]);
 
-    setToastVisible(true);
-    setTimeout(() => setToastVisible(false), 3000);
+  const handleSubmitFeedback = async () => {
+    setIsSubmitting(true);
+    try {
+      await dispatch(
+        submitFeedback({ eventId: event.id, feedback: { rating, comment } })
+      ).unwrap();
+      await dispatch(fetchAllFeedback({ eventId: event.id }));
+      setRating(0);
+      setComment("");
+      setToastMessage("Review submitted successfully!");
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 3000);
+    } catch (error) {
+      console.error("Failed to submit feedback", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const handleEditFeedback = async () => {
+    console.log("Feedback ID:", userFeedback?.id);
+    try {
+      await dispatch(
+        updateFeedback({
+          feedbackId: userFeedback.id,
+          feedback: { rating, comment },
+        })
+      ).unwrap();
+      await dispatch(fetchAllFeedback({ eventId: event.id }));
+      setIsEditing(false);
+      setToastMessage("Review updated successfully!");
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 3000);
+    } catch (error) {
+      console.error("Failed to update feedback", error);
+    }
+  };
+  const handleDeleteFeedback = async () => {
+    console.log("Feedback ID:", userFeedback?.id);
+
+    try {
+      await dispatch(deleteFeedback({ feedbackId: userFeedback.id })).unwrap();
+      await dispatch(fetchAllFeedback({ eventId: event.id }));
+      setRating(0);
+      setComment("");
+      setToastMessage("Review deleted successfully!");
+      setToastVisible(true);
+      setIsDeleteModalOpen(false);
+      setTimeout(() => setToastVisible(false), 3000);
+    } catch (error) {
+      console.error("Failed to delete feedback", error);
+    }
   };
 
-  const handleEditFeedback = () => {
-    dispatch(
-      updateFeedback({
-        feedbackId: userFeedback.id,
-        feedback: { rating, comment },
-      })
-    );
-
-    setToastVisible(true);
-    setTimeout(() => setToastVisible(false), 3000);
+  const startEditingFeedback = () => {
+    setIsEditing(true);
   };
 
+  const cancelEditing = () => {
+    setIsEditing(false);
+    if (userFeedback) {
+      setRating(userFeedback.rating);
+      setComment(userFeedback.comment);
+    }
+  };
   return (
     <div className="ml-8 mr-4 mb-8 rounded-lg p-6 bg-white shadow-md">
       <div className="flex">
@@ -113,10 +168,10 @@ function EventCard({ event }) {
       </div>
 
       <div className="mt-8">
-        {!userFeedback ? (
+        {!userFeedback || isEditing ? (
           <>
             <p className="mb-6 text-md font-semibold text-green-700">
-              Review the Event
+              {isEditing ? "Edit Your Review" : "Review the Event"}
             </p>
 
             <div className="flex items-center mb-6">
@@ -152,12 +207,41 @@ function EventCard({ event }) {
               rows="4"
             />
 
-            <button
-              onClick={handleSubmitFeedback}
-              className="bg-blue-500 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-300"
-            >
-              Submit Feedback
-            </button>
+            <div className="flex space-x-4">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={handleEditFeedback}
+                    disabled={isSubmitting || rating === 0}
+                    className={`bg-blue-500 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-300 ${
+                      isSubmitting || rating === 0
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
+                    Update Review
+                  </button>
+                  <button
+                    onClick={cancelEditing}
+                    className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-400 transition-colors duration-300"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleSubmitFeedback}
+                  disabled={isSubmitting || rating === 0}
+                  className={`bg-blue-500 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors duration-300 ${
+                    isSubmitting || rating === 0
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                >
+                  Submit Feedback
+                </button>
+              )}
+            </div>
           </>
         ) : (
           <></>
@@ -186,7 +270,6 @@ function EventCard({ event }) {
                     ? "You"
                     : feedback.attendee_username}
                 </p>
-                <p className="text-sm text-gray-500">Reviewed 3 hours ago</p>
               </div>
 
               {/* Rating Section */}
@@ -214,19 +297,37 @@ function EventCard({ event }) {
               </p>
 
               {/* Optional: "Edit" button if it's the logged-in user's feedback */}
-              {feedback.attendee === user.id && (
-                <button className="mt-4 text-blue-600 hover:underline text-sm">
-                  Edit Feedback
-                </button>
+              {feedback.attendee === user.id && !isEditing && (
+                <div className="flex space-x-4 mt-4">
+                  <button
+                    onClick={startEditingFeedback}
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    Edit Feedback
+                  </button>
+                  <button
+                    onClick={() => setIsDeleteModalOpen(true)}
+                    className="text-red-600 hover:underline text-sm"
+                  >
+                    Delete Feedback
+                  </button>
+                </div>
               )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            <FeedbackDeleteModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              onConfirm={handleDeleteFeedback}
+            />
           </div>
         ))}
       </div>
 
       {toastVisible && (
         <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg">
-          Review submitted successfully!
+          {toastMessage}
         </div>
       )}
     </div>
