@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { joinStreamingRoom } from "../../api/streaming";
+import { joinStreamingRoom, leaveStreamingRoom } from "../../api/streaming";
 import { Mic, MicOff, PhoneOff, Video, VideoOff } from "lucide-react";
 
 function VideoStreamingRoom({ eventId, onError }) {
+  const { roomData } = useSelector((state) => state.streaming);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [localStream, setLocalStream] = useState(null);
@@ -17,9 +19,15 @@ function VideoStreamingRoom({ eventId, onError }) {
   const token = localStorage.getItem("accessToken");
   const remoteVideoRefs = useRef(new Map());
   const localStreamRef = useRef(null);
+  const userType = useSelector((state) => state.auth.user?.user_type);
 
-  const { roomData } = useSelector((state) => state.streaming);
   useEffect(() => {
+    if (userType) {
+      console.log("user type is", userType);
+    } else {
+      console.log("no user type");
+    }
+
     console.log("LocalStream state changed:", !!localStream);
     if (localStream) {
       console.log("Stream tracks:", localStream.getTracks());

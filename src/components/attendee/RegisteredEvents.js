@@ -7,6 +7,9 @@ import Header from "../shared/Header";
 import AttendeeSidebar from "../shared/attendee/AttendeeSidebar";
 import { FaTicketAlt } from "react-icons/fa";
 import NoDataFound from "../shared/NoDataFound";
+import axios from "axios";
+import { EVENT_BASE_URL } from "../../api/base";
+import { toast } from "react-toastify";
 
 function RegisteredEvents() {
   const accessToken = localStorage.getItem("accessToken");
@@ -76,8 +79,23 @@ function EventCard({ event }) {
       }
     }
   };
-  const handleJoinStream = (eventId) => {
-    navigate(`/event/stream/${eventId}`);
+  const handleJoinStream = async (eventId) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+
+      const response = await axios.post(
+        `${EVENT_BASE_URL}mark-stream-attendance/`,
+        { eventId },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      navigate(`/event/stream/${eventId}`);
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Failed to mark attendance");
+    }
   };
 
   return (

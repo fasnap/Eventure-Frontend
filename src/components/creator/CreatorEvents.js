@@ -222,7 +222,7 @@ function EventCard({ event, onScanClick }) {
           </p>
         </div>
 
-        {onScanClick && (
+        {onScanClick && event.event_type === "offline" && (
           <button
             className="mt-10 bg-blue-400 text-white px-4 py-2 rounded"
             onClick={() => onScanClick(event.id)}

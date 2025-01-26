@@ -32,6 +32,7 @@ export const leaveStreamingRoom = createAsyncThunk(
         },
       }
     );
+    console.log("resposne in stream api ", response.data)
     return response.data;
   }
 );

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { joinStreamingRoom } from "../api/streaming";
+import { joinStreamingRoom, leaveStreamingRoom } from "../api/streaming";
 
 const streamingSlice = createSlice({
   name: "streaming",
@@ -49,6 +49,17 @@ const streamingSlice = createSlice({
       .addCase(joinStreamingRoom.rejected, (state, action) => {
         state.error = action.error.message;
         state.streamStatus = "failed";
+      })
+
+      .addCase(leaveStreamingRoom.fulfilled, (state, action) => {
+        state.isStreaming = false;
+        state.roomData = null;
+        state.participants = [];
+        state.streamStatus = "ended";
+      })
+      .addCase(leaveStreamingRoom.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.streamStatus = "error";
       });
   },
 });
