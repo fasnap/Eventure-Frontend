@@ -8,6 +8,7 @@ function CreatorListModal({ creators, isOpen, onClose, currentUser }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   if (!isOpen) return null; // Don't render the modal if it's not open
+  console.log("Creators received:", creators); // Add this line
 
   const handleCreatorClick = (creatorId) => {
     onClose();
