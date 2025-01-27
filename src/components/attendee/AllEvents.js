@@ -27,7 +27,7 @@ function AllEvents() {
   useEffect(() => {
     dispatch(fetchCreators());
   }, [dispatch]);
-
+  console.log("creators are ", creators);
   useEffect(() => {
     if (!user || user.user_type !== "attendee") {
       navigate("/attendee/login");
