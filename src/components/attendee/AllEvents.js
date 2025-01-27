@@ -305,6 +305,7 @@ function AllEvents() {
           creators={creators}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
+          currentUser={user}
         />
       </div>
     </Layout>

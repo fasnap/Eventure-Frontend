@@ -2,7 +2,6 @@ import React from "react";
 
 function ChatHeader({ selectedRoom, currentUser }) {
   
-
   return (
     <div className="bg-white p-4 border-b">
       <div className="flex items-center">

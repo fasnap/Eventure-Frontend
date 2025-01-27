@@ -1,6 +1,8 @@
+import { MessageCircle } from "lucide-react";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { createOrGetChatRoom } from "../../api/chat";
 
 function CreatorListModal({ creators, isOpen, onClose }) {
   const navigate = useNavigate();
@@ -10,6 +12,22 @@ function CreatorListModal({ creators, isOpen, onClose }) {
   const handleCreatorClick = (creatorId) => {
     onClose();
     navigate(`/creator/${creatorId}`);
+  };
+
+  const handleChatClick = async (creatorId) => {
+    try {
+      const result = await dispatch(
+        createOrGetChatRoom({
+          attendeeId: currentUser.id,
+          creatorId: creatorId,
+        })
+      ).unwrap();
+
+      onClose();
+      navigate("/chat", { state: { selectedRoom: result } });
+    } catch (error) {
+      console.error("Failed to create/get chat room:", error);
+    }
   };
 
   return (
@@ -61,13 +79,19 @@ function CreatorListModal({ creators, isOpen, onClose }) {
                     </p>
                   </div>
                   <p className="text-sm text-gray-800">{creator.email}</p>
-                 
 
                   <button
                     onClick={() => handleCreatorClick(creator.id)}
                     className="text-sm text-blue-600 hover:text-blue-800 font-semibold border-b-2 border-transparent hover:border-blue-500"
                   >
                     Details
+                  </button>
+                  <button
+                    onClick={() => handleChatClick(creator.id)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Chat</span>
                   </button>
                 </li>
               ))}
