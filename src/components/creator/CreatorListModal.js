@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createOrGetChatRoom } from "../../api/chat";
 
-function CreatorListModal({ creators, isOpen, onClose }) {
+function CreatorListModal({ creators, isOpen, onClose, currentUser }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   if (!isOpen) return null; // Don't render the modal if it's not open
