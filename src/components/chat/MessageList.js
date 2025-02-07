@@ -61,7 +61,7 @@ function MessageList({ messages, currentUser, messagesEndRef, socket }) {
   console.log("isSenderCurrentUser", isSenderCurrentUser);
   console.log("messages", currentUser);
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
       {messages.map((msg, index) => {
         const isOwnMessage = isSenderCurrentUser(msg);
         console.log("Message object:", msg);
@@ -71,23 +71,27 @@ function MessageList({ messages, currentUser, messagesEndRef, socket }) {
             className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
           >
             {!isOwnMessage && msg.sender?.username && (
-              <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2 flex-shrink-0">
                 {msg.sender.username.charAt(0).toUpperCase()}
               </div>
             )}
             <div
-              className={`max-w-[70%] rounded-lg p-3 ${
+              className={`max-w-[85%] sm:max-w-[70%] rounded-lg p-2 sm:p-3 ${
                 isOwnMessage ? "bg-white text-black" : "bg-gray-200"
               }`}
             >
               {msg.media_url ? (
                 <MediaMessage message={msg} />
               ) : (
-                <p className="break-words">{msg.content}</p>
+                <p className="break-words text-sm sm:text-base">
+                  {msg.content}
+                </p>
               )}
 
-              <div className="flex items-center justify-end gap-1 text-sm">
-                <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
+              <div className="flex items-center justify-end gap-1 mt-1">
+                <span className="text-xs sm:text-sm text-gray-500">
+                  {new Date(msg.timestamp).toLocaleTimeString()}
+                </span>
                 <MessageStatus
                   status={msg.status}
                   isOwnMessage={isOwnMessage}

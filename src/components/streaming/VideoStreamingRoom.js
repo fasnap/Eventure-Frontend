@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { joinStreamingRoom, leaveStreamingRoom } from "../../api/streaming";
 import { Mic, MicOff, PhoneOff, Video, VideoOff } from "lucide-react";
+import { protocol, WEBSOCKET_BASE_URL } from "../../api/base";
 
 function VideoStreamingRoom({ eventId, onError }) {
   const { roomData } = useSelector((state) => state.streaming);
@@ -92,7 +93,9 @@ function VideoStreamingRoom({ eventId, onError }) {
       return;
     }
 
-    const wsUrl = `wss://eventure.fasna.xyz/ws/stream/${eventId}/?token=${token}`;
+    // const wsUrl = `wss://eventure.fasna.xyz/ws/stream/${eventId}/?token=${token}`;
+    const wsUrl = `${protocol}${WEBSOCKET_BASE_URL}/ws/stream/${eventId}/?token=${token}`;
+
     websocketRef.current = new WebSocket(wsUrl);
 
     websocketRef.current.onopen = () => {

@@ -92,7 +92,12 @@ function EventCard({ event }) {
           },
         }
       );
-      navigate(`/event/stream/${eventId}`);
+      if (response.data.already_present) {
+        navigate(`/event/stream/${eventId}`);
+      } else {
+        toast.success("Attendance marked successfully");
+        navigate(`/event/stream/${eventId}`);
+      }
     } catch (error) {
       toast.error(error.response?.data?.error || "Failed to mark attendance");
     }

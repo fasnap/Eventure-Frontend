@@ -11,12 +11,12 @@ function MediaMessage({ message }) {
           <img
             src={message.media_url}
             alt={message.file_name || "Image"}
-            className="max-w-sm rounded-lg shadow-lg"
+            className="max-w-full sm:max-w-sm rounded-lg shadow-lg"
           />
         );
       case "video":
         return (
-          <video controls className="max-w-sm rounded-lg">
+          <video controls className="max-w-full sm:max-w-sm rounded-lg">
             <source src={message.media_url} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -27,10 +27,10 @@ function MediaMessage({ message }) {
             href={message.media_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-2 p-3 bg-gray-100 rounded-lg hover:bg-gray-200"
+            className="flex items-center space-x-2 p-2 sm:p-3 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            <File className="w-5 h-5" />
-            <span>{message.file_name}</span>
+            <File className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-sm sm:text-base">{message.file_name}</span>
           </a>
         );
       default:

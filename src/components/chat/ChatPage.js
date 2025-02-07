@@ -12,6 +12,7 @@ import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import EmptyState from "./EmptyState";
+import { protocol, WEBSOCKET_BASE_URL } from "../../api/base";
 
 const ChatPage = () => {
   const dispatch = useDispatch();
@@ -50,8 +51,11 @@ const ChatPage = () => {
   };
   const connectWebSocket = (roomId) => {
     const token = localStorage.getItem("accessToken");
+    // const ws = new WebSocket(
+    //   `wss://eventure.fasna.xyz/ws/chat/${roomId}/?token=${token}`
+    // );
     const ws = new WebSocket(
-      `wss://eventure.fasna.xyz/ws/chat/${roomId}/?token=${token}`
+      `${protocol}${WEBSOCKET_BASE_URL}/ws/chat/${roomId}/?token=${token}`
     );
 
     ws.onopen = () => {
@@ -147,13 +151,19 @@ const ChatPage = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <ChatSidebar
-        chatRooms={chatRooms}
-        currentUser={currentUser}
-        selectedRoom={selectedRoom}
-        onRoomSelect={handleRoomSelect}
-      />
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+      <div
+        className={`${
+          selectedRoom ? "hidden md:block" : "block"
+        } md:w-80 lg:w-96 h-full`}
+      >
+        <ChatSidebar
+          chatRooms={chatRooms}
+          currentUser={currentUser}
+          selectedRoom={selectedRoom}
+          onRoomSelect={handleRoomSelect}
+        />
+      </div>
 
       <div className="flex-1 flex flex-col">
         {selectedRoom ? (

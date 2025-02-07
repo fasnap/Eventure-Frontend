@@ -188,7 +188,7 @@ function EventCard({ event, onScanClick }) {
 
   const today = new Date().toLocaleDateString("en-CA");
   const isEventToday = event.date === today;
-
+console.log("event date and is event today", isEventToday, today);
   const handleStartStream = (eventId) => {
     navigate(`/event/stream/${eventId}`);
   };
