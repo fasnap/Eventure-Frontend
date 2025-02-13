@@ -27,9 +27,6 @@ function AllEvents() {
   useEffect(() => {
     dispatch(fetchCreators());
   }, [dispatch]);
-  console.log("creators are ", creators);
-  console.log("Events received:", events);
-
   useEffect(() => {
     if (!user || user.user_type !== "attendee") {
       navigate("/attendee/login");
@@ -58,10 +55,6 @@ function AllEvents() {
     currentPage,
     pageSize,
   ]);
-
-  useEffect(() => {
-    console.log("Events received:", events);
-  }, [events]);
 
   
   const handleEventClick = (eventId) => {
@@ -213,12 +206,12 @@ function AllEvents() {
                           </h3>
                           <span
                             className={`${
-                              event.type === "online"
+                              event.event_type === "online"
                                 ? "text-green-500"
                                 : "text-red-500"
                             } font-semibold text-sm`}
                           >
-                            {event.type === "online" ? "Online" : "Offline"}
+                            {event.event_type === "online" ? "Online" : "Offline"}
                           </span>
                         </div>
 
