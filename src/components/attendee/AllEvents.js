@@ -28,6 +28,8 @@ function AllEvents() {
     dispatch(fetchCreators());
   }, [dispatch]);
   console.log("creators are ", creators);
+  console.log("Events received:", events);
+
   useEffect(() => {
     if (!user || user.user_type !== "attendee") {
       navigate("/attendee/login");
