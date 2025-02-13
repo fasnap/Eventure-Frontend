@@ -57,6 +57,11 @@ function AllEvents() {
     pageSize,
   ]);
 
+  useEffect(() => {
+    console.log("Events received:", events);
+  }, [events]);
+
+  
   const handleEventClick = (eventId) => {
     navigate(`/attendee/events/${eventId}`);
   };
@@ -211,7 +216,6 @@ function AllEvents() {
                                 : "text-red-500"
                             } font-semibold text-sm`}
                           >
-                            {event.type}
                             {event.type === "online" ? "Online" : "Offline"}
                           </span>
                         </div>
