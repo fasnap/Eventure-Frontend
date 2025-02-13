@@ -421,7 +421,7 @@ function VideoStreamingRoom({ eventId, onError }) {
               muted
               className="w-full h-[360px] bg-gray-900 rounded-lg object-cover"
             />
-            <h1>You</h1>
+            <p className="absolute top-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">You</p>
 
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
               <button

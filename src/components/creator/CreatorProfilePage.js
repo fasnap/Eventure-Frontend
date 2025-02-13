@@ -17,7 +17,7 @@ function CreatorProfilePage({ creatorProfile }) {
               <img
                 src={
                   creatorProfile.profile_picture ||
-                  "https://via.placeholder.com/150?text=No+Image"
+                  "file:///home/hp/Desktop/images/l-kt9pk7829-indo-era-original-imagxe68pyxychzw.webp"
                 }
                 alt="Profile"
                 className="w-40 h-40 rounded-full object-cover shadow-md border-4 border-gray-200 mr-10"
