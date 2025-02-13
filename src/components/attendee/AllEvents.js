@@ -211,6 +211,7 @@ function AllEvents() {
                                 : "text-red-500"
                             } font-semibold text-sm`}
                           >
+                            {event.type}
                             {event.type === "online" ? "Online" : "Offline"}
                           </span>
                         </div>
