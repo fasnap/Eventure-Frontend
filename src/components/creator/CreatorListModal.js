@@ -37,7 +37,7 @@ function CreatorListModal({ creators, isOpen, onClose, currentUser }) {
       onClick={onClose}
     >
       <div
-        className="bg-white p-8 rounded-lg max-w-lg w-full shadow-lg transform transition-all scale-95 hover:scale-100"
+        className="bg-white p-8 rounded-lg max-w-lg w-full shadow-lg transform transition-all scale-95 hover:scale-100 mx-4 sm:mx-8 md:mx-12"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
@@ -59,7 +59,7 @@ function CreatorListModal({ creators, isOpen, onClose, currentUser }) {
               {creators.map((creator) => (
                 <li
                   key={creator.id}
-                  className="flex items-center space-x-6 p-1 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200"
+                  className="flex flex-wrap items-center space-x-6 p-1 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200"
                 >
                   {/* Profile Picture */}
                   <img
@@ -68,18 +68,18 @@ function CreatorListModal({ creators, isOpen, onClose, currentUser }) {
                     className="w-16 h-16 rounded-full object-cover border-2"
                   />
                   {/* Creator Info */}
-                  <div className="flex flex-col">
-                    <p className="text-xl font-semibold text-gray-800">
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <p className="text-xl font-semibold text-gray-800 truncate">
                       {creator.username}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 truncate">
                       {creator.event_count} Events
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 truncate">
                       {creator.organisation_name}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-800">{creator.email}</p>
+                  <p className="text-sm text-gray-800 truncate">{creator.email}</p>
 
                   <button
                     onClick={() => handleCreatorClick(creator.id)}
