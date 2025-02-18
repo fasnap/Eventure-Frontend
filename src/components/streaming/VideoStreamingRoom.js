@@ -7,6 +7,7 @@ import { protocol, WEBSOCKET_BASE_URL } from "../../api/base";
 
 function VideoStreamingRoom({ eventId, onError }) {
   const { roomData } = useSelector((state) => state.streaming);
+  const currentUser = useSelector((state) => state.auth.user);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ function VideoStreamingRoom({ eventId, onError }) {
   const [remoteStreams, setRemoteStreams] = useState(new Map());
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [peerUsernames, setPeerUsernames] = useState(new Map());
   const localVideoRef = useRef(null);
   const peerConnections = useRef(new Map());
   const websocketRef = useRef(null);
@@ -106,7 +108,11 @@ function VideoStreamingRoom({ eventId, onError }) {
       // Clear any existing connections when reconnecting
       peerConnections.current.forEach((pc) => pc.close());
       peerConnections.current.clear();
-      sendSignal({ type: "join", userId: roomData?.user_id });
+      sendSignal({
+        type: "join",
+        userId: roomData?.user_id,
+        username: currentUser?.username || "Anonymous",
+      });
     };
 
     websocketRef.current.onmessage = handleWebSocketMessage;
@@ -136,17 +142,41 @@ function VideoStreamingRoom({ eventId, onError }) {
       switch (data.type) {
         case "join":
           if (data.sender_id !== roomData?.user_id) {
+            // Store username when a peer joins
+            if (data.username) {
+              setPeerUsernames((prev) => {
+                const newUsernames = new Map(prev);
+                newUsernames.set(data.sender_id, data.username);
+                return newUsernames;
+              });
+            }
             await new Promise((resolve) => setTimeout(resolve, 500));
             await handleNewPeer(data.sender_id);
           }
           break;
         case "offer":
           if (data.sender_id !== roomData?.user_id) {
+            // Store username if included in offer
+            if (data.username) {
+              setPeerUsernames((prev) => {
+                const newUsernames = new Map(prev);
+                newUsernames.set(data.sender_id, data.username);
+                return newUsernames;
+              });
+            }
             await handleOffer(data);
           }
           break;
         case "answer":
           if (data.sender_id !== roomData?.user_id) {
+            // Store username if included in answer
+            if (data.username) {
+              setPeerUsernames((prev) => {
+                const newUsernames = new Map(prev);
+                newUsernames.set(data.sender_id, data.username);
+                return newUsernames;
+              });
+            }
             await handleAnswer(data);
           }
           break;
@@ -281,7 +311,12 @@ function VideoStreamingRoom({ eventId, onError }) {
       });
       await pc.setLocalDescription(offer);
       console.log("Created and set local offer for peer:", peerId);
-      sendSignal({ type: "offer", offer: pc.localDescription, target: peerId });
+      sendSignal({
+        type: "offer",
+        offer: pc.localDescription,
+        target: peerId,
+        username: currentUser?.username || "Anonymous",
+      });
     } catch (error) {
       console.error("Error creating offer:", error);
       onError("Failed to create connection offer");
@@ -319,6 +354,7 @@ function VideoStreamingRoom({ eventId, onError }) {
           type: "answer",
           answer: pc.localDescription,
           target: data.sender_id,
+          username: currentUser?.username || "Anonymous",
         });
       } else {
         console.warn(
@@ -395,6 +431,12 @@ function VideoStreamingRoom({ eventId, onError }) {
       const newStreams = new Map(prev);
       newStreams.delete(peerId);
       return newStreams;
+    });
+    // Remove username when peer disconnects
+    setPeerUsernames((prev) => {
+      const newUsernames = new Map(prev);
+      newUsernames.delete(peerId);
+      return newUsernames;
     });
   };
 
@@ -474,7 +516,7 @@ function VideoStreamingRoom({ eventId, onError }) {
     // Clear state
     setLocalStream(null);
     setRemoteStreams(new Map());
-
+    setPeerUsernames(new Map());
     console.log("Cleanup completed");
   };
 
@@ -492,7 +534,7 @@ function VideoStreamingRoom({ eventId, onError }) {
               className="w-full h-[360px] bg-gray-900 rounded-lg object-cover"
             />
             <p className="absolute top-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-              You
+              You ({currentUser?.username || "Anonymous"}){" "}
             </p>
 
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
@@ -540,7 +582,10 @@ function VideoStreamingRoom({ eventId, onError }) {
                       }}
                       className="w-full h-full bg-gray-900 rounded-lg object-cover"
                     />
-                    <h1>Hello {peerId}</h1>
+                    <p className="absolute top-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
+                      {peerUsernames.get(peerId) ||
+                        `User ${peerId.substring(0, 8)}`}
+                    </p>{" "}
                   </div>
                 ))}
               </div>
