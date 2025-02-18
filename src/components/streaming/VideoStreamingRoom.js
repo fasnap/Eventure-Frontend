@@ -21,6 +21,7 @@ function VideoStreamingRoom({ eventId, onError }) {
   const remoteVideoRefs = useRef(new Map());
   const localStreamRef = useRef(null);
   const userType = useSelector((state) => state.auth.user?.user_type);
+  const pendingIceCandidates = useRef(new Map());
 
   useEffect(() => {
     if (userType) {
@@ -55,7 +56,9 @@ function VideoStreamingRoom({ eventId, onError }) {
       console.log("Joined streaming room:", response);
 
       // Initialize WebSocket after we have the stream
-      await initializeWebSocket();
+      if (stream && response) {
+        await initializeWebSocket();
+      }
     } catch (error) {
       console.error("Initialize call error:", error);
       onError(error.message);
@@ -217,6 +220,19 @@ function VideoStreamingRoom({ eventId, onError }) {
         `ICE connection state for peer ${peerId}:`,
         pc.iceConnectionState
       );
+
+      if (
+        pc.iceConnectionState === "disconnected" ||
+        pc.iceConnectionState === "failed"
+      ) {
+        console.log(`Attempting to reconnect with peer ${peerId}`);
+        // Wait a bit before trying to reconnect
+        setTimeout(() => {
+          if (peerConnections.current.has(peerId)) {
+            handleNewPeer(peerId);
+          }
+        }, 2000);
+      }
     };
 
     pc.onconnectionstatechange = () => {
@@ -275,28 +291,40 @@ function VideoStreamingRoom({ eventId, onError }) {
   const handleOffer = async (data) => {
     if (data.sender_id === roomData?.user_id) return;
     console.log("Handling offer from peer:", data.sender_id);
-
-    let pc = peerConnections.current.get(data.sender_id);
-    if (!pc) {
-      pc = createPeerConnection(data.sender_id);
-      if (!pc) {
-        console.error("Failed to create peer connection for offer");
-        return;
-      }
-    }
     try {
-      await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-      console.log("Set remote description from offer");
+      if (!localStreamRef.current) {
+        throw new Error("Local stream not initialized");
+      }
 
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      console.log("Created and set local answer");
+      let pc = peerConnections.current.get(data.sender_id);
+      if (!pc) {
+        pc = createPeerConnection(data.sender_id);
+        if (!pc) {
+          console.error("Failed to create peer connection for offer");
+          return;
+        }
+      }
+      if (
+        pc.signalingState === "stable" ||
+        pc.signalingState === "have-remote-offer"
+      ) {
+        await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+        console.log("Set remote description from offer");
+        await addPendingCandidates(data.sender_id);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        console.log("Created and set local answer");
 
-      sendSignal({
-        type: "answer",
-        answer: pc.localDescription,
-        target: data.sender_id,
-      });
+        sendSignal({
+          type: "answer",
+          answer: pc.localDescription,
+          target: data.sender_id,
+        });
+      } else {
+        console.warn(
+          `Cannot set remote description in current state: ${pc.signalingState}`
+        );
+      }
     } catch (error) {
       console.error("Error handling offer:", error);
       onError("Failed to handle connection offer");
@@ -319,6 +347,7 @@ function VideoStreamingRoom({ eventId, onError }) {
           data.sender_id
         );
         await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+        await addPendingCandidates(data.sender_id);
       } else {
         console.log(
           "Peer connection state not ready for answer:",
@@ -344,6 +373,10 @@ function VideoStreamingRoom({ eventId, onError }) {
           console.log(
             "Waiting for remote description before adding ICE candidate"
           );
+          const pendingCandidates =
+            pendingIceCandidates.current.get(data.sender_id) || [];
+          pendingCandidates.push(data.candidate);
+          pendingIceCandidates.current.set(data.sender_id, pendingCandidates);
         }
       } catch (error) {
         console.error("Error adding ICE candidate:", error);
@@ -389,6 +422,25 @@ function VideoStreamingRoom({ eventId, onError }) {
     }
   };
 
+  const addPendingCandidates = async (peerId) => {
+    const candidates = pendingIceCandidates.current.get(peerId) || [];
+    const pc = peerConnections.current.get(peerId);
+
+    if (pc && pc.remoteDescription && candidates.length > 0) {
+      console.log(
+        `Adding ${candidates.length} pending ICE candidates for peer ${peerId}`
+      );
+      for (const candidate of candidates) {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (error) {
+          console.error("Error adding pending ICE candidate:", error);
+        }
+      }
+      pendingIceCandidates.current.delete(peerId);
+    }
+  };
+
   const endCall = () => {
     cleanup();
     navigate(-1);
@@ -396,16 +448,34 @@ function VideoStreamingRoom({ eventId, onError }) {
 
   const cleanup = () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => track.stop());
+      localStreamRef.current.getTracks().forEach((track) => {
+        track.stop();
+        console.log(`Stopped local track: ${track.kind}`);
+      });
       localStreamRef.current = null;
     }
-    if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
-    }
-    peerConnections.current.forEach((pc) => pc.close());
+    // if (localStream) {
+    //   localStream.getTracks().forEach((track) => track.stop());
+    // }
+    // Close all peer connections
+    peerConnections.current.forEach((pc, peerId) => {
+      console.log(`Closing peer connection with ${peerId}`);
+      pc.close();
+    });
+    peerConnections.current.clear();
+
+    // Close WebSocket
     if (websocketRef.current) {
+      console.log("Closing WebSocket connection");
       websocketRef.current.close();
+      websocketRef.current = null;
     }
+
+    // Clear state
+    setLocalStream(null);
+    setRemoteStreams(new Map());
+
+    console.log("Cleanup completed");
   };
 
   return (
@@ -421,7 +491,9 @@ function VideoStreamingRoom({ eventId, onError }) {
               muted
               className="w-full h-[360px] bg-gray-900 rounded-lg object-cover"
             />
-            <p className="absolute top-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">You</p>
+            <p className="absolute top-2 left-2 text-white bg-black bg-opacity-50 px-2 py-1 rounded">
+              You
+            </p>
 
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
               <button
