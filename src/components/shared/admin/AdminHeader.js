@@ -147,9 +147,9 @@ const AdminHeader = () => {
       <div className="flex items-center justify-between w-full md:w-auto">
         <div className="flex items-center space-x-3">
           <img
-            src="https://via.placeholder.com/40"
-            alt="Eventure Logo"
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full"
+            src={`${process.env.PUBLIC_URL}/logo.svg`}
+            alt="Logo"
+            className="w-10 h-auto"
           />
           <h1 className="text-xl md:text-2xl font-bold text-white-800">
             Eventure

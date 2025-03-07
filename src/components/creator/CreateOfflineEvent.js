@@ -106,7 +106,7 @@ function CreateOfflineEvent() {
   });
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyDjzhcTlzmDJLanj-6dg3vE4gV5K7m1cd0", // API key
+    googleMapsApiKey: "AIzaSyCXHBke8QX8sHJTlgk9f7yDlo3ZLZYYFK4", // API key
     libraries,
   });
 
